@@ -57,8 +57,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.Row // Row için
 import androidx.compose.foundation.layout.Spacer // Spacer için
 import androidx.compose.foundation.layout.width // width modifier'ı için
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.unit.sp // sp (font boyutu) için
 import com.babelsoftware.lifetools.BuildConfig // BuildConfig'i import edin
+import com.babelsoftware.lifetools.ui.settings.AppearanceSettingsScreen
+import com.babelsoftware.lifetools.ui.settings.LanguageSettingsScreen
+import com.babelsoftware.lifetools.ui.settings.SettingsScreen
 import com.babelsoftware.lifetools.ui.truthordare.SpinnerScreen
 import com.babelsoftware.lifetools.ui.truthordare.SpinnerWithQuestionsScreen
 import com.babelsoftware.lifetools.ui.truthordare.TruthOrDareHubScreen
@@ -128,6 +134,19 @@ class MainActivity : ComponentActivity() {
                             Screen.SPINNER_WITH_QUESTIONS -> SpinnerWithQuestionsScreen( // Placeholder
                                 onNavigateBack = { currentScreen = Screen.TRUTH_OR_DARE_HUB }
                             )
+                            Screen.SETTINGS -> SettingsScreen(
+                                // settingsViewModel burada tekrar alınabilir veya MainActivity'den parametre olarak geçirilebilir.
+                                // SettingsScreen kendi içinde viewModel() ile alıyor.
+                                onNavigateBack = { currentScreen = Screen.MAIN },
+                                onNavigateToAppearanceSettings = { currentScreen = Screen.APPEARANCE_SETTINGS },
+                                onNavigateToLanguageSettings = { currentScreen = Screen.LANGUAGE_SETTINGS }
+                            )
+                            Screen.APPEARANCE_SETTINGS -> AppearanceSettingsScreen( // Placeholder çağrısı
+                                onNavigateBack = { currentScreen = Screen.SETTINGS }
+                            )
+                            Screen.LANGUAGE_SETTINGS -> LanguageSettingsScreen( // Placeholder çağrısı
+                                onNavigateBack = { currentScreen = Screen.SETTINGS }
+                            )
                         }
                     }
                 }
@@ -194,7 +213,15 @@ fun MainAppContent(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { onNavigate(Screen.SETTINGS) }) { // Ayarlar ekranına git
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(id = R.string.settings_title)
+                        )
+                    }
+                }
             )
         },
         modifier = modifier

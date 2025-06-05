@@ -501,12 +501,15 @@ fun ThemeStepContent(
 @Composable
 fun DynamicColorSwitch(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier // <<<--- ALINAN MODIFIER BURAYA ATANDI
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp), // Bu padding fonksiyonun kendi iç padding'i olarak kalabilir
+        // veya dışarıdan gelen modifier ile birleştirilebilir/kaldırılabilir.
+        // Şimdilik kendi iç padding'ini koruyalım.
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -519,13 +522,13 @@ fun DynamicColorSwitch(
                 text = stringResource(id = R.string.dynamic_colors_summary),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.alpha(0.8f) // Biraz soluk
+                modifier = Modifier.alpha(0.8f)
             )
         }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors( // Expressive renkler
+            colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.primary,
                 checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
                 uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -540,7 +543,8 @@ fun DynamicColorSwitch(
 fun StaticAccentColorSelector(
     availableColors: List<Pair<Color, Int>>, // Renk ve string resource ID'si
     selectedColor: Color,
-    onColorSelected: (Color) -> Unit
+    onColorSelected: (Color) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(

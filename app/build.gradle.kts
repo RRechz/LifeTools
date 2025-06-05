@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     // only for debug and preview
     debugImplementation("androidx.test:core-ktx:1.6.1")
