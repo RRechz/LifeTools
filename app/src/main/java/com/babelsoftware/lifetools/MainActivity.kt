@@ -59,6 +59,10 @@ import androidx.compose.foundation.layout.Spacer // Spacer için
 import androidx.compose.foundation.layout.width // width modifier'ı için
 import androidx.compose.ui.unit.sp // sp (font boyutu) için
 import com.babelsoftware.lifetools.BuildConfig // BuildConfig'i import edin
+import com.babelsoftware.lifetools.ui.truthordare.SpinnerScreen
+import com.babelsoftware.lifetools.ui.truthordare.SpinnerWithQuestionsScreen
+import com.babelsoftware.lifetools.ui.truthordare.TruthOrDareHubScreen
+import com.babelsoftware.lifetools.ui.truthordare.TruthQuestionsScreen
 
 data class ToolItem(
     val title: String,
@@ -98,12 +102,9 @@ class MainActivity : ComponentActivity() {
                         when (currentScreen) {
                             Screen.MAIN -> MainAppContent(
                                 onNavigate = { destinationScreen ->
-                                    // Eğer destinationScreen zaten MAIN ise bir şey yapma (opsiyonel)
-                                    if (destinationScreen != Screen.MAIN) {
+                                    if (destinationScreen != Screen.MAIN) { // Kendisine navigasyonu engelle
                                         currentScreen = destinationScreen
                                     }
-                                    // TODO: Eğer destinationScreen için bir enum değeri yoksa (örn. TruthOrDare için)
-                                    // şimdilik bir Log.d mesajı veya Toast gösterebiliriz.
                                 }
                             )
                             Screen.RECIPES -> RecipeScreen(
@@ -112,7 +113,21 @@ class MainActivity : ComponentActivity() {
                             Screen.MOVIES -> MovieScreen(
                                 onNavigateBack = { currentScreen = Screen.MAIN }
                             )
-                            // TODO: Screen.TRUTH_OR_DARE için case eklenecek
+                            Screen.TRUTH_OR_DARE_HUB -> TruthOrDareHubScreen(
+                                onNavigateToTruthQuestions = { currentScreen = Screen.TRUTH_QUESTIONS },
+                                onNavigateToSpinner = { currentScreen = Screen.SPINNER_GAME },
+                                onNavigateToSpinnerWithQuestions = { currentScreen = Screen.SPINNER_WITH_QUESTIONS },
+                                onNavigateBack = { currentScreen = Screen.MAIN }
+                            )
+                            Screen.TRUTH_QUESTIONS -> TruthQuestionsScreen( // Placeholder
+                                onNavigateBack = { currentScreen = Screen.TRUTH_OR_DARE_HUB }
+                            )
+                            Screen.SPINNER_GAME -> SpinnerScreen( // Placeholder
+                                onNavigateBack = { currentScreen = Screen.TRUTH_OR_DARE_HUB }
+                            )
+                            Screen.SPINNER_WITH_QUESTIONS -> SpinnerWithQuestionsScreen( // Placeholder
+                                onNavigateBack = { currentScreen = Screen.TRUTH_OR_DARE_HUB }
+                            )
                         }
                     }
                 }
@@ -152,7 +167,7 @@ fun MainAppContent(
         ToolItem(
             title = stringResource(id = R.string.truth_or_dare), // Doğruluk mu Cesaretlik mi?
             iconResId = R.drawable.truth_or_dare_with_ai, // Kendi ikonunuz (placeholder)
-            screenRoute = Screen.MAIN // TODO: TRUTH_OR_DARE için Screen enum'ına ekle ve burayı güncelle
+            screenRoute = Screen.TRUTH_OR_DARE_HUB // TODO: TRUTH_OR_DARE için Screen enum'ına ekle ve burayı güncelle
         )
     )
 
