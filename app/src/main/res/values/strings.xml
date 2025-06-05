@@ -1,0 +1,64 @@
+<resources>
+    <string name="app_name">LifeTools</string>
+    <string name="app_main_title" translatable="false">LifeTools</string>
+
+    <!-- Onboarding Screen -->
+    <string name="welcome_to_lifetool">Welcome to LifeTools!</string>
+    <string name="onboarding_description">Let\'s make a few adjustments before we begin.</string>
+    <string name="choose_your_theme">Select theme:</string>
+    <string name="light_theme">Light</string>
+    <string name="dark_theme">Dark</string>
+    <string name="system_default_theme">System</string> <string name="continue_button">Next</string>
+    <string name="onboarding_title">Setup</string>
+    <string name="language_selection_title">Select Language</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_english">English</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_finish">Finish</string>
+    <string name="onboarding_start">Start</string>
+    <string name="dynamic_colors_title">Dynamic Colors</string>
+    <string name="dynamic_colors_summary">Match app colors with your wallpaper</string>
+    <string name="static_accent_color_title">Choose Main Color (beta)</string>
+    <string name="default_color_name">Default Blue</string>
+    <string name="green_color_name">Green</string>
+    <string name="purple_color_name">Purple</string>
+    <string name="orange_color_name">Orange</string>
+    <string name="teal_color_name">Cyan</string>
+
+    <!-- Onboarding Screen list -->
+    <string name="list_recipe">Cooking recipes with Gemini AI</string>
+    <string name="list_movie">Get Movie/Series recommendations with AI</string>
+    <string name="list_ToD">“Truth or Dare?” with Gemini AI</string>
+    <string name="list_ToDo_Maker">Easily create a “To Do” list with the help of AI!</string>
+
+    <!-- Onboarding Screen Finish -->
+    <string name="onboarding_step_info_title">Her Şey Hazır!</string>
+    <string name="onboarding_step_info_subtitle">LifeTool, günlük hayatınızı kolaylaştıracak ve eğlenceli hale getirecek yapay zeka destekli araçlar sunar. Keşfetmeye başla!</string>
+    <string name="onboarding_app_feature_summary_title">Neler Bulacaksın?</string>
+    <string name="lets_get_started">Hadi Başlayalım!</string>
+
+    <!-- Recipe Screen -->
+    <string name="recipe_screen_title">Food Recipes</string>
+    <string name="ingredients_label">Materials</string>
+    <string name="ingredients_placeholder">Write down the ingredients you have on hand (e.g. tomatoes, onions, peppers)</string>
+    <string name="get_ideas_button">Get Ideas</string>
+    <string name="ai_response_placeholder">The AI answers will appear here...</string>
+    <string name="back_to_main_screen">Back to Home Screen</string>
+
+    <!-- Movie -->
+    <string name="movie_screen_title">Film &amp; TV Series Suggestions</string>
+    <string name="coming_soon">Coming Soon!</string>
+    <string name="content_type_selection">What do you want to watch?</string>
+    <string name="movies_tab">Movies</string>
+    <string name="series_tab">TV Series</string>
+    <string name="genres_selection">Select Genre (One or more)</string>
+    <string name="production_year_label">Year of Production</string>
+    <string name="production_year_placeholder">Ex: 2023 (optional)</string>
+    <string name="platforms_selection">Choose Platform (One or more)</string>
+    <string name="get_recommendations_button">Get Suggestions</string>
+    <string name="ai_movie_response_placeholder">Movie/series suggestions will appear here...</string>
+
+    <!-- Truth or Dare -->
+    <string name="truth_or_dare">Truth? or Dare?</string>
+</resources>

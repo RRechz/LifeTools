@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LifeTools</string>
+
+    <!-- Onboarding Screen -->
+    <string name="welcome_to_lifetool">LifeTools\'a Hoş Geldiniz!</string>
+    <string name="onboarding_description">Başlamadan önce birkaç ayar yapalım.</string>
+    <string name="choose_your_theme">Temanı seç:</string>
+    <string name="light_theme">Açık</string>
+    <string name="dark_theme">Koyu</string>
+    <string name="system_default_theme">Sistem</string>
+    <string name="continue_button">Devam Et</string>
+    <string name="onboarding_title">Kurulum</string>
+    <string name="language_selection_title">Dil seçimi</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_english">English</string>
+    <string name="onboarding_next">İleri</string>
+    <string name="onboarding_back">Geri</string>
+    <string name="onboarding_finish">Bitir</string>
+    <string name="onboarding_start">Başla</string>
+    <string name="dynamic_colors_title">Dinamik Renkler</string>
+    <string name="dynamic_colors_summary">Uygulama renklerini duvar kağıdınızla eşleştirin</string>
+    <string name="static_accent_color_title">Ana Rengi Seçin (beta)</string>
+    <string name="default_color_name">Varsayılan Mavi</string>
+    <string name="green_color_name">Yeşil</string>
+    <string name="purple_color_name">Mor</string>
+    <string name="orange_color_name">Turuncu</string>
+    <string name="teal_color_name">Camgöbeği</string>
+
+    <!-- Onboarding Screen list -->
+    <string name="list_recipe">Gemini Yapay Zekası ile yemek tarifleri</string>
+    <string name="list_movie">Yapay zeka ile film/dizi önerileri alın</string>
+    <string name="list_ToD">Gemini AI eşliğinde "Doğruluk mu? yoksa Cesaretlik mi?"</string>
+    <string name="list_ToDo_Maker">Yapay zekanın yardımıyla kolayca bir “Yapılacaklar (To-Do)” listesi oluşturun!</string>
+
+    <!-- Onboarding Screen Finish -->
+    <string name="onboarding_step_info_title">Her Şey Hazır!</string>
+    <string name="onboarding_step_info_subtitle">LifeTool, günlük hayatınızı kolaylaştıracak ve eğlenceli hale getirecek yapay zeka destekli araçlar sunar. Keşfetmeye başla!</string>
+    <string name="onboarding_app_feature_summary_title">Neler Bulacaksın?</string>
+    <string name="lets_get_started">Hadi Başlayalım!</string>
+
+    <!-- Recipe Screen -->
+    <string name="recipe_screen_title">Yemek Tarifleri</string>
+    <string name="ingredients_label">Malzemeler</string>
+    <string name="ingredients_placeholder">Elinizdeki malzemeleri yazın (örn: domates, soğan, biber)</string>
+    <string name="get_ideas_button">Fikir Al</string>
+    <string name="ai_response_placeholder">Yapay zeka cevapları burada görünecek…</string>
+    <string name="back_to_main_screen">Ana Ekrana Geri Dön</string>
+
+    <!-- Movie -->
+    <string name="movie_screen_title">Film &amp; Dizi Önerileri</string>
+    <string name="coming_soon">Çok Yakında!</string>
+    <string name="content_type_selection">Ne İzlemek İstersin?</string>
+    <string name="movies_tab">Filmler</string>
+    <string name="series_tab">Diziler</string>
+    <string name="genres_selection">Tür Seçin (Bir veya daha fazla)</string>
+    <string name="production_year_label">Yapım Yılı</string>
+    <string name="production_year_placeholder">Örn: 2023 (isteğe bağlı)</string>
+    <string name="platforms_selection">Platform Seçin (Bir veya daha fazla)</string>
+    <string name="get_recommendations_button">Öneri Al</string>
+    <string name="ai_movie_response_placeholder">Film/dizi önerileri burada görünecek…</string>
+    <string name="truth_or_dare">Doğruluk mu? yoksa Cesaretlik mi?</string>
+</resources>
