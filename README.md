@@ -22,7 +22,7 @@ LifeTool is an “All in One” Android application that brings together various
 * **AI Powered Vehicles:**
     * 🍳 **Cooking Recipes:** Type in the ingredients you have on hand and Gemini AI will provide you with customized meal ideas and recipes.
     * 🎬 **Movie/TV Series Suggestions:** Get personalized movie and TV series recommendations based on various filters such as genre, year of production, platform, etc.
-    * 🎲 **Truth or Dare** (Coming Soon!): AI-powered questions or wheel of fortune system to have fun with your friends.
+    * 🎲 **Truth or Dare:** AI-powered questions or wheel of fortune system to have fun with your friends.
 
 * **Modern and Smooth Interface:**
     * **Design of Material 3:** User interface enriched with “Expressive” touches, in line with the latest Android design principles.
@@ -32,14 +32,14 @@ LifeTool is an “All in One” Android application that brings together various
 
 ## 🛠️ Kullanılan Teknolojiler
 
-* **Kotlin:** Ana programlama dili.
-* **Jetpack Compose:** Modern ve deklaratif kullanıcı arayüzü geliştirme kiti.
-* **Material 3:** En güncel Material Design bileşenleri ve stil yönergeleri.
-* **Google Gemini API:** Uygulamanın yapay zeka özelliklerinin temelini oluşturan güçlü dil modeli.
-* **Android Jetpack Kütüphaneleri:**
-    * ViewModel: UI ile ilgili verileri yaşam döngüsüne duyarlı bir şekilde yönetmek için.
-    * DataStore: Kullanıcı tercihlerini (tema, dil vb.) kalıcı olarak saklamak için.
-    * Navigation (temel): Ekranlar arası geçiş için.
+* **Kotlin:** Main programming language.
+* **Jetpack Compose:** Modern and declarative UI development kit.
+* **Material 3:** The latest Material Design components and style guidelines.
+* **Google Gemini API:** A powerful language model that underpins the app's AI capabilities.
+* **Android Jetpack Libraries:**
+    * ViewModel: To manage UI-related data in a lifecycle-aware way.
+    * DataStore: To permanently store user preferences (theme, language, etc.).
+    * Navigation (basic): For switching between screens.
 
 ## 🚀 Future Plans
 
