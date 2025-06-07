@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.random.Random
+import java.util.Collections
 
 data class SpinTarget(
     val winningItemIndex: Int,
@@ -59,8 +60,16 @@ class SpinnerViewModel : ViewModel() {
         }
     }
 
-    // TODO: Öğeleri yeniden sıralamak için fonksiyon (Sürükle-bırak için sonra eklenecek)
-    // fun reorderItems(from: Int, to: Int) { ... }
+    // YENİ: Öğeleri yeniden sıralamak için fonksiyon
+    fun reorderItems(from: Int, to: Int) {
+        _uiState.update { currentState ->
+            val reorderedList = currentState.items.toMutableList().apply {
+                // Öğeyi eski yerinden yeni yerine taşı
+                add(to, removeAt(from))
+            }
+            currentState.copy(items = reorderedList)
+        }
+    }
 
     fun spinWheel() {
         val currentItems = _uiState.value.items

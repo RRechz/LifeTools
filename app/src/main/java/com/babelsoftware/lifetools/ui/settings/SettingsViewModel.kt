@@ -2,94 +2,88 @@
 package com.babelsoftware.lifetools.ui.settings
 
 import android.app.Application
-import androidx.compose.ui.graphics.Color // Color için import
-import androidx.compose.ui.graphics.toArgb // toArgb için import
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.babelsoftware.lifetools.data.UserPreferencesRepository
-import com.babelsoftware.lifetools.data.defaultStaticColorArgb
-import com.babelsoftware.lifetools.model.AppLanguage // Yeni import
 import com.babelsoftware.lifetools.data.AppTheme
+import com.babelsoftware.lifetools.data.UserPreferencesRepository
+import com.babelsoftware.lifetools.model.AppLanguage
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map // map operatörü için import
+import kotlinx.coroutines.flow.combine // combine operatörü için import
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+// İYİLEŞTİRME 1: Tüm UI state'lerini tek bir data class altında topluyoruz.
+data class SettingsUiState(
+    val appTheme: AppTheme = AppTheme.SYSTEM_DEFAULT,
+    val isDynamicColorsEnabled: Boolean = true,
+    val staticAccentColor: Color = Color(0xFF4285F4), // Varsayılan renk
+    val appLanguage: AppLanguage = AppLanguage.TURKISH,
+    val isOnboardingCompleted: Boolean = false
+)
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val userPreferencesRepository = UserPreferencesRepository(application)
 
-    val appTheme: StateFlow<AppTheme> = userPreferencesRepository.themePreference
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AppTheme.SYSTEM_DEFAULT
+    // Tüm ayrı Flow'ları tek bir UI State Flow'unda birleştiriyoruz.
+    val uiState: StateFlow<SettingsUiState> = combine(
+        userPreferencesRepository.themePreference,
+        userPreferencesRepository.dynamicColorsEnabledPreference,
+        userPreferencesRepository.staticAccentColorPreference,
+        userPreferencesRepository.languagePreferenceCode,
+        userPreferencesRepository.onboardingCompleted
+    ) { theme, isDynamic, accentColorArgb, langCode, onBoardingComplete ->
+        SettingsUiState(
+            appTheme = theme,
+            isDynamicColorsEnabled = isDynamic,
+            staticAccentColor = Color(accentColorArgb),
+            appLanguage = AppLanguage.fromCode(langCode),
+            isOnboardingCompleted = onBoardingComplete
         )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = SettingsUiState() // Boş bir başlangıç state'i (varsayılan değerlerle)
+    )
 
-    val isOnboardingCompleted: StateFlow<Boolean> = userPreferencesRepository.onboardingCompleted
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = false
-        )
+    // Ayrı ayrı StateFlow'lar artık kaldırıldı.
+    // val appTheme: StateFlow<AppTheme> = ...
+    // val isOnboardingCompleted: StateFlow<Boolean> = ...
+    // ... vb.
 
-    // YENİ: Dil tercihini StateFlow olarak dışa aktarıyoruz
-    val appLanguage: StateFlow<AppLanguage> = userPreferencesRepository.languagePreferenceCode
-        .map { languageCode -> AppLanguage.fromCode(languageCode) } // Kodu AppLanguage enum'ına çevir
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = AppLanguage.TURKISH // Başlangıç değeri
-        )
 
-    // YENİ: Dinamik renkler etkin mi?
-    val isDynamicColorsEnabled: StateFlow<Boolean> = userPreferencesRepository.dynamicColorsEnabledPreference
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = true // Varsayılan olarak açık
-        )
-
-    // YENİ: Seçili statik ana renk
-    val staticAccentColor: StateFlow<Color> = userPreferencesRepository.staticAccentColorPreference
-        .map { argb -> Color(argb) } // Int ARGB'yi Color nesnesine çevir
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = Color(defaultStaticColorArgb) // Varsayılan renk
-        )
-
-    // YENİ: Dinamik renkler tercihini güncelle
-    fun updateDynamicColorsEnabled(isEnabled: Boolean) {
-        viewModelScope.launch {
-            userPreferencesRepository.saveDynamicColorsPreference(isEnabled)
-        }
-    }
-
-    // YENİ: Statik ana renk tercihini güncelle
-    fun updateStaticAccentColor(color: Color) {
-        viewModelScope.launch {
-            userPreferencesRepository.saveStaticAccentColorPreference(color.toArgb()) // Color'ı Int ARGB'ye çevir
-        }
-    }
-
+    // Yazma/güncelleme fonksiyonları aynı kalır, çünkü bunlar hala
+    // repository'deki ilgili save fonksiyonlarını çağırmalıdır.
     fun updateTheme(newTheme: AppTheme) {
         viewModelScope.launch {
             userPreferencesRepository.saveThemePreference(newTheme)
         }
     }
 
-    fun setOnboardingCompleted() {
+    fun updateDynamicColorsEnabled(isEnabled: Boolean) {
         viewModelScope.launch {
-            userPreferencesRepository.saveOnboardingCompleted(true)
+            userPreferencesRepository.saveDynamicColorsPreference(isEnabled)
         }
     }
 
-    // YENİ: Kullanıcının seçtiği yeni dili kaydeder.
+    fun updateStaticAccentColor(color: Color) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveStaticAccentColorPreference(color.toArgb())
+        }
+    }
+
     fun updateLanguage(newLanguage: AppLanguage) {
         viewModelScope.launch {
             userPreferencesRepository.saveLanguagePreference(newLanguage.code)
+        }
+    }
+
+    fun setOnboardingCompleted() {
+        viewModelScope.launch {
+            userPreferencesRepository.saveOnboardingCompleted(true)
         }
     }
 }

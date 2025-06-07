@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,17 +16,17 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -47,10 +48,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -61,13 +62,15 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.lifetools.R
+import org.burnoutcrew.reorderable.ReorderableItem
+import org.burnoutcrew.reorderable.detectReorderAfterLongPress
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import org.burnoutcrew.reorderable.reorderable
 import kotlin.math.cos
 import kotlin.math.sin
 
-// Alternatif renkler listesi
+// wheelColors listesi ve WheelCanvas Composable'ı aynı kalabilir
 val wheelColors = listOf(
     Color(0xFFEF5350), Color(0xFFEC407A), Color(0xFFAB47BC), Color(0xFF7E57C2),
     Color(0xFF5C6BC0), Color(0xFF42A5F5), Color(0xFF29B6F6), Color(0xFF26C6DA),
@@ -77,24 +80,38 @@ val wheelColors = listOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SpinnerScreen(
-    spinnerVM: SpinnerViewModel = viewModel(),
+    // ViewModel yerine UI state'ini ve event lambdalarını alıyoruz
+    uiState: SpinnerUiState,
+    onInputChanged: (String) -> Unit,
+    onAddItem: () -> Unit,
+    onRemoveItem: (String) -> Unit,
+    onReorderItems: (Int, Int) -> Unit,
+    onSpinWheel: () -> Unit,
+    onSpinAnimationCompleted: (String) -> Unit, // Animasyon bittiğinde çağrılacak yeni lambda
+    onClearSelectedItem: () -> Unit,
+    onClearErrorMessage: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val uiState by spinnerVM.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    val rotationAngle = remember { Animatable(0f) } // Animasyon için
+    val rotationAngleAnimatable = remember { Animatable(0f) }
+    // YENİ: Reorderable için state oluşturuyoruz
+    val reorderableState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            // ViewModel'daki fonksiyonu çağır
+            onReorderItems(from.index, to.index)
+        }
+    )
 
     LaunchedEffect(uiState.errorMessage) {
         uiState.errorMessage?.let {
             snackbarHostState.showSnackbar(message = it, duration = SnackbarDuration.Short)
-            spinnerVM.clearErrorMessage()
+            onClearErrorMessage()
         }
     }
 
-    // Sonuç için AlertDialog
-    if (uiState.selectedItem != null) {
+    if (uiState.selectedItem != null && !uiState.isSpinning) {
         AlertDialog(
-            onDismissRequest = { spinnerVM.clearSelectedItem() },
+            onDismissRequest = onClearSelectedItem,
             title = { Text("Çark Sonucu") },
             text = {
                 Text(
@@ -104,26 +121,22 @@ fun SpinnerScreen(
                 )
             },
             confirmButton = {
-                TextButton(onClick = { spinnerVM.clearSelectedItem() }) {
-                    Text("Tamam")
-                }
+                TextButton(onClick = onClearSelectedItem) { Text("Tamam") }
             }
         )
     }
-    // Spin hedefini gözlemle ve animasyonu başlat
+
     LaunchedEffect(uiState.spinTarget) {
         uiState.spinTarget?.let { target ->
-            rotationAngle.animateTo(
-                targetValue = target.targetRotationDegrees,
-                animationSpec = tween(
-                    durationMillis = 3500, // Dönüş süresi
-                    easing = FastOutSlowInEasing // Yumuşak başlama ve bitiş
+            if (kotlin.math.abs(rotationAngleAnimatable.value - target.targetRotationDegrees) > 1f) {
+                rotationAngleAnimatable.animateTo(
+                    targetValue = target.targetRotationDegrees,
+                    animationSpec = tween(durationMillis = 3500, easing = FastOutSlowInEasing)
                 )
-            )
-            // Animasyon bittikten sonra sonucu ViewModel'a bildir
+            }
             val winningItem = uiState.items.getOrNull(target.winningItemIndex)
             if (winningItem != null) {
-                spinnerVM.setSpinningCompleted(winningItem)
+                onSpinAnimationCompleted(winningItem)
             }
         }
     }
@@ -141,44 +154,17 @@ fun SpinnerScreen(
             )
         },
         floatingActionButton = {
-            val fabEnabled = uiState.items.size >= 2 && !uiState.isSpinning // Etkinlik durumunu hesapla
-
-            // Etkinlik durumuna göre renkleri belirle
-            val currentContainerColor = if (fabEnabled) {
-                MaterialTheme.colorScheme.primary // Etkin renk (bir önceki FAB'daki gibi)
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) // M3'teki devre dışı bırakılmış container alpha'sı
-            }
-            val currentContentColor = if (fabEnabled) {
-                MaterialTheme.colorScheme.onPrimary // Etkin renk
-            } else {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f) // M3'teki devre dışı bırakılmış content alpha'sı
-            }
+            val fabEnabled = uiState.items.size >= 2 && !uiState.isSpinning
+            val currentContainerColor = if (fabEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            val currentContentColor = if (fabEnabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
 
             ExtendedFloatingActionButton(
-                onClick = {
-                    if (fabEnabled) { // Sadece etkinken işlemi gerçekleştir
-                        spinnerVM.spinWheel()
-                    }
-                },
-                icon = {
-                    Icon(
-                        Icons.Filled.PlayArrow,
-                        contentDescription = "Çevir",
-                        tint = currentContentColor // Rengi dinamik olarak ata
-                    )
-                },
-                text = {
-                    Text(
-                        "Çarkı Çevir",
-                        color = currentContentColor // Rengi dinamik olarak ata
-                    )
-                },
-                expanded = true, // Her zaman geniş kalsın
-                containerColor = currentContainerColor, // Dinamik container rengi
-                contentColor = currentContentColor // Bu, içindeki Text ve Icon için varsayılan content rengini ayarlar,
-                // ancak Icon'da tint ve Text'te color ile ayrıca belirtmek daha garantilidir.
-                // enabled parametresi kaldırıldı.
+                onClick = { if (fabEnabled) onSpinWheel() },
+                icon = { Icon(Icons.Filled.PlayArrow, "Çevir", tint = currentContentColor) },
+                text = { Text("Çarkı Çevir", color = currentContentColor) },
+                expanded = true,
+                containerColor = currentContainerColor,
+                contentColor = currentContentColor
             )
         },
         floatingActionButtonPosition = FabPosition.Center
@@ -186,18 +172,17 @@ fun SpinnerScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // Scaffold'dan gelen padding
-                .padding(16.dp), // Genel ekran içi padding
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Metin Giriş Alanı ve Ekle Butonu
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = uiState.currentInput,
-                    onValueChange = { spinnerVM.onInputChanged(it) },
+                    onValueChange = onInputChanged,
                     label = { Text("Çark için metin ekle") },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
@@ -205,71 +190,83 @@ fun SpinnerScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(
-                    onClick = { spinnerVM.addItem() },
+                    onClick = onAddItem,
                     enabled = uiState.currentInput.isNotBlank() && !uiState.isSpinning
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = "Ekle")
                 }
             }
 
+            Text("Eklenecekler (${uiState.items.size}):", style = MaterialTheme.typography.titleSmall, modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
+            // DÜZELTME: LazyColumn'u reorderable (yeniden sıralanabilir) yapıyoruz
+            LazyColumn(
+                state = reorderableState.listState, // Kütüphanenin kendi state'ini kullanıyoruz
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f) // Ağırlığı güncelledim, layout'u test et
+                    .reorderable(reorderableState) // reorderable modifier'ını ekliyoruz
+                    .detectReorderAfterLongPress(reorderableState) // Uzun basarak sürüklemeyi etkinleştir
+            ) {
+                items(uiState.items, key = { it }) { item ->
+                    // Her bir öğeyi ReorderableItem içine alıyoruz
+                    ReorderableItem(reorderableState, key = item) { isDragging ->
+                        val elevation = if (isDragging) 8.dp else 0.dp
+                        val backgroundColor = if (isDragging) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+
+                        ListItem(
+                            modifier = Modifier
+                                .background(backgroundColor, shape = MaterialTheme.shapes.small)
+                                .shadow(elevation, shape = MaterialTheme.shapes.small), // Sürüklenirken gölge ekle
+                            headlineContent = { Text(item) },
+                            leadingContent = {
+                                // Sürükleme ikonu
+                                Icon(
+                                    imageVector = Icons.Default.DragHandle,
+                                    contentDescription = "Sırala"
+                                )
+                            },
+                            trailingContent = {
+                                IconButton(onClick = { onRemoveItem(item) }, enabled = !uiState.isSpinning) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Sil")
+                                }
+                            }
+                        )
+                    }
+                    HorizontalDivider()
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 2. ÇARK GÖRSEL ALANI (WheelCanvas ve Seçim Oku'nu içeren Box)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(0.6f) // Veya başka bir ağırlık
                     .aspectRatio(1f)
-                    .padding(16.dp), // Bu padding'i vertical olarak değiştirebiliriz: .padding(vertical = 16.dp)
-                contentAlignment = Alignment.TopCenter
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.TopCenter // Seçim okunu üste koymak için
             ) {
+                // Sizin paylaştığınız kod bloğu ve diğer durumlar buraya gelecek:
                 if (uiState.items.isNotEmpty()) {
                     WheelCanvas(
                         items = uiState.items,
-                        currentRotationDegrees = rotationAngle.value
+                        currentRotationDegrees = rotationAngleAnimatable.value
                     )
-                    // Seçim Oku (Pointer)
+                    // Seçim Oku (Pointer) ikonu
                     Icon(
-                        painter = painterResource(id = R.drawable.spinner_arrow), // Özel bir ok ikonu ekleyin
+                        painter = painterResource(id = R.drawable.spinner_arrow),
                         contentDescription = "Seçim Oku",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
-                            .align(Alignment.TopCenter) // Üstte ortala
+                            .align(Alignment.TopCenter)
                             .size(36.dp)
                             .offset(y = (-18).dp) // Yarısı kadar yukarı kaydırarak çarkın tam üstüne gelsin
                     )
                 } else if (uiState.isSpinning) { // Henüz item yok ama spin tetiklendi (hata durumu)
                     CircularProgressIndicator()
-                }
-                else {
+                } else {
+                    // Başlangıçta veya öğe kalmadığında gösterilecek metin
                     Text("Çarkı oluşturmak için öğe ekleyin", style = MaterialTheme.typography.bodyLarge)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Eklenen Öğeler Listesi (Listenin yüksekliğini sınırlamak gerekebilir)
-            Text("Eşyalar (${uiState.items.size}):", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 16.dp)) // Çark ile liste arasına boşluk
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f) // Listenin kalan alanı esnek şekilde kaplaması için
-                    .heightIn(min = 56.dp, max = 200.dp) // Min ve Max yükseklik (max değeri artırılabilir)
-            ) {
-                itemsIndexed(uiState.items, key = { _, item -> item }) { index, item ->
-                    ListItem(
-                        headlineContent = { Text(item) },
-                        trailingContent = {
-                            IconButton(
-                                onClick = { spinnerVM.removeItem(item) },
-                                enabled = !uiState.isSpinning
-                            ) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Sil")
-                            }
-                        }
-                    )
-                    if (index < uiState.items.size - 1) {
-                        HorizontalDivider()
-                    }
                 }
             }
         }
@@ -282,13 +279,14 @@ fun WheelCanvas(
     currentRotationDegrees: Float,
     modifier: Modifier = Modifier
 ) {
+    // Eğer hiç öğe yoksa, bir şey çizme
     if (items.isEmpty()) return
 
     val segmentAngle = 360f / items.size
     val textPaint = remember {
         Paint().apply {
             color = Color.Black.toArgb() // Metin rengi
-            textSize = 40f // Metin boyutu (yoğunluğa göre ayarlanabilir)
+            textSize = 40f // Metin boyutu (bu değer yoğunluğa göre ayarlanabilir)
             textAlign = Paint.Align.CENTER
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
         }
@@ -297,9 +295,10 @@ fun WheelCanvas(
     Canvas(modifier = modifier.fillMaxSize()) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val radius = (kotlin.math.min(canvasWidth, canvasHeight) / 2f) * 0.9f // %90'ını kullansın
+        val radius = (kotlin.math.min(canvasWidth, canvasHeight) / 2f) * 0.9f // Alanın %90'ını kullansın
         val center = Offset(canvasWidth / 2, canvasHeight / 2)
 
+        // Tüm çizimi mevcut dönüş açısına göre döndür
         rotate(degrees = currentRotationDegrees, pivot = center) {
             items.forEachIndexed { index, item ->
                 val startAngle = index * segmentAngle - 90f // -90f ile ilk dilimi yukarıdan başlat
@@ -307,14 +306,14 @@ fun WheelCanvas(
 
                 // Dilimi çiz
                 drawArc(
-                    color = wheelColors[index % wheelColors.size], // Renkleri tekrarla
+                    color = wheelColors[index % wheelColors.size], // Renk listesindeki renkleri tekrarla
                     startAngle = startAngle,
                     sweepAngle = sweepAngle,
-                    useCenter = true,
+                    useCenter = true, // Pasta dilimi gibi çizilmesi için
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = Size(radius * 2, radius * 2)
                 )
-                // Dilim kenarlığı (opsiyonel)
+                // Dilim kenarlığı (isteğe bağlı)
                 drawArc(
                     color = Color.Black.copy(alpha = 0.5f),
                     startAngle = startAngle,
@@ -322,29 +321,25 @@ fun WheelCanvas(
                     useCenter = true,
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = Size(radius * 2, radius * 2),
-                    style = Stroke(width = 2.dp.toPx())
+                    style = Stroke(width = 1.dp.toPx()) // Kenarlık kalınlığı
                 )
 
-                // Dilim üzerine metin yazma (Bu kısım daha karmaşık ve iyileştirme gerektirebilir)
-                // Metni dilimin ortasına ve dışa doğru yazmak için:
-                val textAngleRad = Math.toRadians((startAngle + sweepAngle / 2).toDouble()).toFloat()
-                val textRadius = radius * 0.7f // Metnin çark merkezinden uzaklığı
-                val textX = center.x + textRadius * cos(textAngleRad)
-                val textY = center.y + textRadius * sin(textAngleRad)
+                // Dilim üzerine metin yazma
+                if (item.isNotBlank()) {
+                    // Metni dilimin ortasına ve dışa doğru konumlandır
+                    val textAngleRad = Math.toRadians((startAngle + sweepAngle / 2).toDouble()).toFloat()
+                    val textRadius = radius * 0.7f // Metnin çark merkezinden uzaklığı
+                    val textX = center.x + textRadius * cos(textAngleRad)
+                    val textY = center.y + textRadius * sin(textAngleRad)
 
-                // Metni döndürerek yazmak daha iyi okunabilirlik sağlar ama Canvas API'sinde karmaşıktır.
-                // Şimdilik basitçe metni yazalım.
-                // drawContext.canvas.nativeCanvas.save()
-                // drawContext.canvas.nativeCanvas.rotate(startAngle + sweepAngle / 2 + 90, textX, textY) // Metni dilime göre döndür
-                if (item.isNotBlank()) { // Boş itemları atla
+                    // Metni çiz
                     drawContext.canvas.nativeCanvas.drawText(
-                        item.take(10), // Uzun metinler için kısaltma
+                        item.take(10), // Uzun metinler için ilk 10 karakteri al
                         textX,
                         textY + textPaint.textSize / 3, // Dikeyde ortalamak için ince ayar
                         textPaint
                     )
                 }
-                // drawContext.canvas.nativeCanvas.restore()
             }
         }
     }

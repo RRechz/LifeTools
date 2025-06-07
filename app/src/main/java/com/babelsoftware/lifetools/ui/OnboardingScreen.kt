@@ -106,86 +106,72 @@ fun OnboardingScreen(
     onOnboardingComplete: () -> Unit
 ) {
     var currentStep by remember { mutableStateOf(OnboardingStep.WELCOME) }
-    val currentThemeBase by settingsViewModel.appTheme.collectAsStateWithLifecycle()
-    val currentLanguage by settingsViewModel.appLanguage.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var dynamicColorsEnabled by remember { mutableStateOf(true) }
-    var selectedStaticAccentColor by remember { mutableStateOf(predefinedStaticColors.first().first) }
-
-    // YENİ: ViewModel'dan dinamik renk ve statik accent renk state'lerini al
-    val isDynamicColorsUserEnabled by settingsViewModel.isDynamicColorsEnabled.collectAsStateWithLifecycle()
-    val currentStaticAccentColor by settingsViewModel.staticAccentColor.collectAsStateWithLifecycle()
+    // İYİLEŞTİRME: Tüm state'leri ViewModel'dan gelen tek bir uiState'den alıyoruz.
+    val uiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            // Artık INFO_SUMMARY adımında da navigasyon barı görünecek (Bitir butonu için)
-            if (currentStep != OnboardingStep.WELCOME) { // WELCOME hariç tüm adımlarda göster
+            if (currentStep != OnboardingStep.WELCOME) {
                 OnboardingNavigationBar(
                     currentStep = currentStep,
                     onBack = {
                         currentStep = when (currentStep) {
                             OnboardingStep.LANGUAGE_SETTINGS -> OnboardingStep.WELCOME
                             OnboardingStep.THEME_SETTINGS -> OnboardingStep.LANGUAGE_SETTINGS
-                            OnboardingStep.INFO_SUMMARY -> OnboardingStep.THEME_SETTINGS // Bilgiden temaya geri dön
-                            else -> currentStep // WELCOME veya beklenmedik durum
+                            OnboardingStep.INFO_SUMMARY -> OnboardingStep.THEME_SETTINGS
+                            else -> currentStep
                         }
                     },
                     onNext = {
                         when (currentStep) {
                             OnboardingStep.LANGUAGE_SETTINGS -> currentStep = OnboardingStep.THEME_SETTINGS
-                            OnboardingStep.THEME_SETTINGS -> currentStep = OnboardingStep.INFO_SUMMARY // Temadan bilgiye git
-                            OnboardingStep.INFO_SUMMARY -> { // Son adımda "Bitir"
+                            OnboardingStep.THEME_SETTINGS -> currentStep = OnboardingStep.INFO_SUMMARY
+                            OnboardingStep.INFO_SUMMARY -> {
                                 settingsViewModel.setOnboardingCompleted()
                                 onOnboardingComplete()
                             }
-                            else -> {} // WELCOME için FAB kullanılacak
+                            else -> {}
                         }
                     }
                 )
             }
         },
         floatingActionButton = {
-            // Sadece Hoş Geldin adımında FAB göster
             if (currentStep == OnboardingStep.WELCOME) {
                 FloatingActionButton(
                     onClick = { currentStep = OnboardingStep.LANGUAGE_SETTINGS },
-                    containerColor = MaterialTheme.colorScheme.primary, // Expressive renk
-                    shape = RoundedCornerShape(16.dp) // Expressive şekil
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = stringResource(id = R.string.onboarding_start)
-                    )
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, stringResource(id = R.string.onboarding_start))
                 }
             }
         },
-        floatingActionButtonPosition = FabPosition.End // FAB konumu
+        floatingActionButtonPosition = FabPosition.End
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) { // paddingValues'ı uygula
-            val scrollState = rememberScrollState()
+        Box(modifier = Modifier.padding(paddingValues)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState) // İçerik scroll edilebilir
-                    .padding(16.dp) // Genel sayfa içi padding
-                    .animateContentSize(), // Adımlar arası geçişte animasyon
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+                    .animateContentSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when (currentStep) {
                     OnboardingStep.WELCOME -> WelcomeStepContent()
                     OnboardingStep.LANGUAGE_SETTINGS -> LanguageStepContent(
-                        selectedLanguage = currentLanguage,
+                        selectedLanguage = uiState.appLanguage,
                         onLanguageSelected = { settingsViewModel.updateLanguage(it) }
                     )
                     OnboardingStep.THEME_SETTINGS -> ThemeStepContent(
-                        currentTheme = currentThemeBase, // Base tema modu
+                        currentTheme = uiState.appTheme,
                         onThemeSelected = { settingsViewModel.updateTheme(it) },
-                        isDynamicColorsEnabled = isDynamicColorsUserEnabled, // ViewModel'dan
-                        onDynamicColorsEnabledChanged = { settingsViewModel.updateDynamicColorsEnabled(it) }, // ViewModel'a
-                        staticAccentColor = currentStaticAccentColor, // ViewModel'dan
-                        onStaticAccentColorChanged = { settingsViewModel.updateStaticAccentColor(it) }, // ViewModel'a
-                        availableStaticColors = predefinedStaticColors // Bu liste şimdilik UI'da kalabilir
+                        isDynamicColorsEnabled = uiState.isDynamicColorsEnabled,
+                        onDynamicColorsEnabledChanged = { settingsViewModel.updateDynamicColorsEnabled(it) },
+                        staticAccentColor = uiState.staticAccentColor,
+                        onStaticAccentColorChanged = { settingsViewModel.updateStaticAccentColor(it) },
+                        availableStaticColors = predefinedStaticColors
                     )
                     OnboardingStep.INFO_SUMMARY -> InfoSummaryStepContent()
                 }
@@ -194,44 +180,34 @@ fun OnboardingScreen(
     }
 }
 
+// --- Navigasyon ve Adım İçerikleri ---
+
 @Composable
 fun OnboardingNavigationBar(
     currentStep: OnboardingStep,
     onBack: () -> Unit,
     onNext: () -> Unit
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shadowElevation = 8.dp
-    ) {
+    Surface(modifier = Modifier.fillMaxWidth(), shadowElevation = 8.dp) {
         Column {
             LinearProgressIndicator(
-                // Progress artık (mevcut adımın sırası + 1) / toplam adım sayısı
-                progress = { (currentStep.ordinal + 1).toFloat() / totalOnboardingSteps },
+                // DÜZELTME: progress parametresi doğrudan Float değeri alır, lambda değil.
+                progress = (currentStep.ordinal + 1).toFloat() / totalOnboardingSteps,
                 modifier = Modifier.fillMaxWidth(),
                 strokeCap = StrokeCap.Round,
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
-                    onClick = onBack,
-                    // WELCOME adımında geri butonu olmaz (nav bar orada görünmüyor)
-                    // Diğer adımlarda (LANGUAGE_SETTINGS, THEME_SETTINGS, INFO_SUMMARY) geri butonu aktif
-                    enabled = currentStep != OnboardingStep.WELCOME
-                ) {
+                TextButton(onClick = onBack, enabled = currentStep != OnboardingStep.WELCOME) {
                     Text(stringResource(id = R.string.onboarding_back))
                 }
-
                 TextButton(onClick = onNext) {
                     Text(
-                        // Son adım INFO_SUMMARY ise "Bitir" yaz, değilse "İleri"
                         if (currentStep == OnboardingStep.INFO_SUMMARY) stringResource(id = R.string.onboarding_finish)
                         else stringResource(id = R.string.onboarding_next)
                     )
@@ -436,11 +412,11 @@ fun LanguagePreviewPane(selectedLanguage: AppLanguage, modifier: Modifier = Modi
 
 // Önceden tanımlanmış statik renk seçenekleri
 val predefinedStaticColors = listOf(
-    Color(0xFF4285F4) to R.string.default_color_name, // Google Blue
-    Color(0xFF34A853) to R.string.green_color_name,   // Google Green
-    Color(0xFF8A2BE2) to R.string.purple_color_name,  // BlueViolet
-    Color(0xFFFFA500) to R.string.orange_color_name,  // Orange
-    Color(0xFF20B2AA) to R.string.teal_color_name     // LightSeaGreen
+    Color(0xFF4285F4) to R.string.default_color_name,
+    Color(0xFF34A853) to R.string.green_color_name,
+    Color(0xFF8A2BE2) to R.string.purple_color_name,
+    Color(0xFFFFA500) to R.string.orange_color_name,
+    Color(0xFF20B2AA) to R.string.teal_color_name
 )
 
 // ThemeStepContent Composable'ı güncellenerek ThemePreviewPane'e yeni parametreler geçecek
@@ -1018,52 +994,6 @@ fun LanguageStepContentPreview_WithPane() {
             LanguageStepContent(
                 selectedLanguage = selectedLang,
                 onLanguageSelected = { selectedLang = it }
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "spec:width=360dp,height=740dp", name = "Theme Step Preview (Light)")
-@Composable
-fun ThemeStepContentPreview_Light() {
-    LifeToolsTheme(darkTheme = false) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            ThemeStepContent(
-                currentTheme = AppTheme.LIGHT,
-                onThemeSelected = {},
-                isDynamicColorsEnabled = true, // Örnek değer
-                onDynamicColorsEnabledChanged = {}, // Boş lambda
-                staticAccentColor = predefinedStaticColors.first().first, // Örnek renk
-                onStaticAccentColorChanged = {}, // Boş lambda
-                availableStaticColors = predefinedStaticColors // Tanımlı listeniz
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "spec:width=360dp,height=740dp", name = "Theme Step Preview (Dark, Static Green)")
-@Composable
-fun ThemeStepContentPreview_Dark_StaticGreen() {
-    LifeToolsTheme(darkTheme = true) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            ThemeStepContent(
-                currentTheme = AppTheme.DARK,
-                onThemeSelected = {},
-                isDynamicColorsEnabled = false, // Dinamik renkler kapalı
-                onDynamicColorsEnabledChanged = {},
-                staticAccentColor = predefinedStaticColors.getOrElse(1) { predefinedStaticColors.first() }.first, // Örnek Yeşil renk
-                onStaticAccentColorChanged = {},
-                availableStaticColors = predefinedStaticColors
             )
         }
     }

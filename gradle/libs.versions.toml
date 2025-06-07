@@ -11,19 +11,11 @@ composeBom = "2025.06.00"
 androidxDatastorePreferences = "1.1.7"
 lifecycleViewmodelCompose = "2.9.1"
 androidxComposeMaterialIcons = "1.7.8"
-composeCompiler = "1.5.1" # Kullandığın Kotlin versiyonuyla uyumlu olmalı
-material3 = "1.2.1"
 
 # Gemini
 googleAiGenerativeAi = "0.9.0"
 
-# Test
-androidxJunit = "1.1.5"
-
-# Plugins (build.gradle.kts (Project) dosyasında tanımlı olanlar için)
-androidApplication = "8.4.1" # Kullandığın Android Gradle Plugin versiyonu
-jetbrainsKotlinAndroid = "1.9.22"
-firebaseCrashlyticsBuildtools = "3.0.3" # Kullandığın Kotlin versiyonu
+firebaseCrashlyticsBuildtools = "3.0.4" # Kullandığın Kotlin versiyonu
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,8 +31,6 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 google-ai-client-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "googleAiGenerativeAi" }
 androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastorePreferences" }
