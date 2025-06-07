@@ -1,8 +1,17 @@
 package com.babelsoftware.lifetools.ui.settings
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,31 +21,43 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.NewLabel
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Source
+import androidx.compose.material.icons.filled.SystemUpdateAlt
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue // viewModel için collectAsStateWithLifecycle kullanacaksak
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel // viewModel delegesi için
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.lifetools.BuildConfig
 import com.babelsoftware.lifetools.R
-import com.babelsoftware.lifetools.ui.settings.SettingsViewModel // SettingsViewModel'ı import et
 import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
-import androidx.compose.material.icons.filled.SystemUpdateAlt // Güncelleme ikonu için
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel // UpdateViewModel için
 
 
 // Ayar öğelerinin grup içindeki konumuna göre şeklini belirleyen yardımcı fonksiyon
@@ -51,7 +72,7 @@ fun getSettingItemShape(
         isStandalone -> RoundedCornerShape(cornerRadius)
         isFirst -> RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius, bottomStart = 0.dp, bottomEnd = 0.dp)
         isLast -> RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp, bottomStart = cornerRadius, bottomEnd = cornerRadius)
-        else -> RectangleShape // <<<--- DÜZELTME BURADA
+        else -> RectangleShape
     }
 }
 
@@ -129,6 +150,7 @@ fun SettingsScreen(
 ) {
     val updateUiState by updateViewModel.uiState.collectAsStateWithLifecycle()
     var showUpdateDialog by remember { mutableStateOf(false) }
+    val uriHandler = LocalUriHandler.current
 
     // Güncelleme mevcut olduğunda ve henüz dialog gösterilmediyse dialog'u tetikle
     LaunchedEffect(updateUiState.updateAvailable) {
@@ -156,9 +178,10 @@ fun SettingsScreen(
                 TextButton(
                     onClick = {
                         showUpdateDialog = false
-                        // TODO: İndirme işlemini başlat
-                        // Log.d("SettingsScreen", "İndirme başlatılacak: ${updateUiState.downloadUrl}")
-                        updateViewModel.clearUpdateState()
+                        // ViewModel'daki indirme fonksiyonunu çağırıyoruz
+                        updateViewModel.startDownload()
+                        // clearUpdateState() fonksiyonunu şimdilik çağırmayalım,
+                        // indirme başladıktan sonra belki bir "indiriliyor" mesajı göstermek isteriz.
                     }
                 ) { Text(stringResource(id = R.string.download_update)) }
             },
@@ -199,7 +222,7 @@ fun SettingsScreen(
             // --- Görünüm Ayarları Grubu ---
             item {
                 Text(
-                    "Görünüm", // stringResource(id = R.string.settings_category_appearance)
+                    stringResource(R.string.appearance), // stringResource(id = R.string.settings_category_appearance)
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 4.dp, top = 8.dp) // Grup başlığı için boşluk
@@ -227,8 +250,8 @@ fun SettingsScreen(
             item {
                 SettingItem(
                     icon = Icons.Filled.Language,
-                    title = "Dil",
-                    subtitle = "Uygulama dilini değiştirin", // Seçili dili de gösterebiliriz (örn: "Türkçe")
+                    title = stringResource(R.string.language),
+                    subtitle = stringResource(R.string.language_subtitle), // Seçili dili de gösterebiliriz (örn: "Türkçe")
                     shape = getSettingItemShape(isStandalone = true, cornerRadius = 20.dp),
                     onClick = onNavigateToLanguageSettings
                 )
@@ -237,7 +260,7 @@ fun SettingsScreen(
             // --- Uygulama Bilgileri Grubu ---
             item {
                 Text(
-                    "Hakkında", // stringResource(id = R.string.settings_category_about)
+                    stringResource(R.string.about), // stringResource(id = R.string.settings_category_about)
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 4.dp, top = 16.dp)
@@ -246,20 +269,20 @@ fun SettingsScreen(
             item {
                 SettingItem(
                     icon = Icons.Filled.Info,
-                    title = "Versiyon",
+                    title = stringResource(R.string.version),
                     subtitle = "v${BuildConfig.VERSION_NAME}",
-                    shape = getSettingItemShape(isFirst = true, isLast = false, cornerRadius = 20.dp), // Grup örneği için ilk
+                    shape = getSettingItemShape(isFirst = true, isLast = false), // Grup örneği için ilk
                     onClick = { /* Tıklayınca bir şey yapmayabilir veya Toast gösterebilir */ },
                     trailingContent = null // Sağdaki oku kaldır
                 )
             }
             item {
                 SettingItem(
-                    icon = null, // İkonsuz olabilir
-                    title = "GitHub'da Görüntüle",
-                    subtitle = "Projenin kaynak kodları",
+                    icon = Icons.Filled.Source,
+                    title = stringResource(R.string.source_code),
+                    subtitle = stringResource(R.string.source_code_subtitle),
                     shape = getSettingItemShape(isFirst = false, isLast = true, cornerRadius = 20.dp), // Grup örneği için son
-                    onClick = { /* TODO: GitHub linkini aç */ }
+                    onClick = { uriHandler.openUri("https://github.com/RRechz/LifeTools") }
                 )
             }
             // --- Uygulama Güncellemesi Grubu ---
@@ -283,7 +306,7 @@ fun SettingsScreen(
                     icon = Icons.Filled.SystemUpdateAlt,
                     title = stringResource(id = R.string.check_for_updates),
                     subtitle = updateSubtitle,
-                    shape = getSettingItemShape(isFirst = true, isLast = (true /* Şimdilik tek öğe, daha sonra altına bilgi eklenebilir */), cornerRadius = 20.dp),
+                    shape = getSettingItemShape(isFirst = true, isLast = true),
                     onClick = {
                         if (!updateUiState.isChecking) {
                             updateViewModel.checkForUpdates()

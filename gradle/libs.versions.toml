@@ -22,7 +22,8 @@ androidxJunit = "1.1.5"
 
 # Plugins (build.gradle.kts (Project) dosyasında tanımlı olanlar için)
 androidApplication = "8.4.1" # Kullandığın Android Gradle Plugin versiyonu
-jetbrainsKotlinAndroid = "1.9.22" # Kullandığın Kotlin versiyonu
+jetbrainsKotlinAndroid = "1.9.22"
+firebaseCrashlyticsBuildtools = "3.0.3" # Kullandığın Kotlin versiyonu
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,7 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "androidxComposeMaterialIcons" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "androidxComposeMaterialIcons" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

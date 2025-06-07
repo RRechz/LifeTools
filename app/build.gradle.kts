@@ -23,7 +23,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0-beta.2"
+        versionName = "0.1.0-beta.3"
 
         // API anahtarını BuildConfigField olarak ekle
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY") ?: ""}\"")
@@ -83,6 +83,13 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+
+    // YENİ BAĞIMLILIKLAR: Ktor Client
+    implementation("io.ktor:ktor-client-core:2.3.11") // En güncel versiyonları kontrol edin
+    implementation("io.ktor:ktor-client-okhttp:2.3.11") // Android için önerilen motor
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
+    implementation(libs.firebase.crashlytics.buildtools)
 
     // only for debug and preview
     debugImplementation("androidx.test:core-ktx:1.6.1")

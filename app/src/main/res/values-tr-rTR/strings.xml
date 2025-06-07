@@ -60,4 +60,23 @@
     <string name="get_recommendations_button">Öneri Al</string>
     <string name="ai_movie_response_placeholder">Film/dizi önerileri burada görünecek…</string>
     <string name="truth_or_dare">Doğruluk mu? yoksa Cesaretlik mi?</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_category_update">Uygulama Güncellemeleri</string>
+    <string name="check_for_updates">Güncellemeleri Kontrol Et</string>
+    <string name="current_version">Mevcut Sürüm: %1$s</string> <string name="checking_for_updates">Güncellemeler kontrol ediliyor...</string>
+    <string name="no_updates_available">Uygulamanız güncel :)</string>
+    <string name="update_available_title">Yeni Sürüm Mevcut!</string>
+    <string name="update_available_message">Yeni sürüm (v%1$s) indirilebilir. İndirmek ister misiniz?</string>
+    <string name="download_update">İndir</string>
+    <string name="later">Daha Sonra</string>
+    <string name="update_check_failed">Güncelleme kontrolü başarısız oldu. Lütfen internet bağlantınızı kontrol edin.</string>
+    <string name="source_code">Kaynak Kodu</string>
+    <string name="source_code_subtitle">Uygulamanın kaynak koduna erişin</string>
+    <string name="version">Sürüm</string>
+    <string name="about">Hakkımda</string>
+    <string name="language">Dil</string>
+    <string name="language_subtitle">Uygulama dilini değiştir</string>
+    <string name="appearance">Görünüm</string>
 </resources>

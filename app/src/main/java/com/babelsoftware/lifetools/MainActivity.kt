@@ -69,6 +69,9 @@ import com.babelsoftware.lifetools.ui.truthordare.SpinnerScreen
 import com.babelsoftware.lifetools.ui.truthordare.SpinnerWithQuestionsScreen
 import com.babelsoftware.lifetools.ui.truthordare.TruthOrDareHubScreen
 import com.babelsoftware.lifetools.ui.truthordare.TruthQuestionsScreen
+import android.content.Intent // Intent için
+import android.net.Uri // Uri için
+import android.provider.Settings // Ayarlar ekranını açmak için
 
 data class ToolItem(
     val title: String,

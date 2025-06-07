@@ -64,13 +64,20 @@
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
-    <string name="settings_category_update">Uygulama Güncellemesi</string>
-    <string name="check_for_updates">Güncellemeleri Kontrol Et</string>
-    <string name="current_version">Mevcut Sürüm: %1$s</string> <string name="checking_for_updates">Güncellemeler kontrol ediliyor...</string>
-    <string name="no_updates_available">Uygulamanız güncel.</string>
-    <string name="update_available_title">Yeni Sürüm Mevcut!</string>
-    <string name="update_available_message">Yeni sürüm (v%1$s) indirilebilir. İndirmek ister misiniz?</string>
-    <string name="download_update">İndir</string>
-    <string name="later">Daha Sonra</string>
-    <string name="update_check_failed">Güncelleme kontrolü başarısız oldu. Lütfen internet bağlantınızı kontrol edin.</string>
+    <string name="settings_category_update">App Update</string>
+    <string name="check_for_updates">Check for Updates</string>
+    <string name="current_version">Current Version: %1$s</string> <string name="checking_for_updates">Checking for updates...</string>
+    <string name="no_updates_available">Your app is up to date :)</string>
+    <string name="update_available_title">New Version Available!</string>
+    <string name="update_available_message">The new version (v%1$s) is available for download. Would you like to download it?</string>
+    <string name="download_update">Download</string>
+    <string name="later">Remind me later</string>
+    <string name="update_check_failed">Update check failed. Please check your internet connection.</string>
+    <string name="source_code">Source Code</string>
+    <string name="source_code_subtitle">Access the app\'s source code</string>
+    <string name="version">Version</string>
+    <string name="about">About</string>
+    <string name="language">Language</string>
+    <string name="language_subtitle">Change app language</string>
+    <string name="appearance">Appearance</string>
 </resources>
