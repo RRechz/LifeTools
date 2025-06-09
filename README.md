@@ -30,7 +30,7 @@ LifeTool is an “All in One” Android application that brings together various
 
 * **User-friendly Navigation:** Card-based home screen layout for easy switching between tools.
 
-## 🛠️ Kullanılan Teknolojiler
+## 🛠️ Used Technologies
 
 * **Kotlin:** Main programming language.
 * **Jetpack Compose:** Modern and declarative UI development kit.
@@ -44,8 +44,9 @@ LifeTool is an “All in One” Android application that brings together various
 ## 🚀 Future Plans
 
 * Completion of the “Truth or Dare?” toolkit.
-* Adding new filters and features to existing tools.
-* Adding new “Life Tools” based on user feedback.
+* “To Do” creator with Gemini assistant
+* Upscale SD Image quality to HD
+* Image conversion in “Ghibli” and similar themes in ChatGPT (undecided)
 * Performance and UI/UX improvements.
 ## Screenshots
 
