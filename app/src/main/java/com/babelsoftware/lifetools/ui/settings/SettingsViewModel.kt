@@ -21,7 +21,7 @@ data class SettingsUiState(
     val isDynamicColorsEnabled: Boolean = true,
     val staticAccentColor: Color = Color(0xFF4285F4), // Varsayılan renk
     val appLanguage: AppLanguage = AppLanguage.TURKISH,
-    val isOnboardingCompleted: Boolean = false
+    val isOnboardingCompleted: Boolean? = null
 )
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -46,7 +46,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SettingsUiState() // Boş bir başlangıç state'i (varsayılan değerlerle)
+        initialValue = SettingsUiState(isOnboardingCompleted = null)
     )
 
     // Ayrı ayrı StateFlow'lar artık kaldırıldı.

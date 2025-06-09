@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.gradle.kotlin.dsl.support.kotlinCompilerOptions
 import java.util.Properties
 
@@ -5,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
 // local.properties dosyasından API anahtarını okumak için
@@ -73,6 +75,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // Compose - Bill of Materials (BOM)
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+
     // Gemini API (Google AI Generative Language)
     // En güncel versiyonu kontrol et: https://github.com/google/generative-ai-android
     implementation(libs.google.ai.client.generativeai)
@@ -83,6 +90,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation("androidx.compose.foundation:foundation:1.8.2")
     implementation("io.ktor:ktor-client-core:2.3.11") // En güncel versiyonları kontrol edin
     implementation("io.ktor:ktor-client-okhttp:2.3.11") // Android için önerilen motor
     implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
