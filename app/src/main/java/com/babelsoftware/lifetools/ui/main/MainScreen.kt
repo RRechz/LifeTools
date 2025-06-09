@@ -1,33 +1,6 @@
 package com.babelsoftware.lifetools.ui.main
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.babelsoftware.lifetools.BuildConfig
-import com.babelsoftware.lifetools.R
-import com.babelsoftware.lifetools.ToolItem
-import com.babelsoftware.lifetools.ui.navigation.Screen
-import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +13,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +30,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.babelsoftware.lifetools.BuildConfig
+import com.babelsoftware.lifetools.R
+import com.babelsoftware.lifetools.ToolItem
+import com.babelsoftware.lifetools.ui.navigation.Screen
+import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
 
 private val mainScreenTools = listOf(
     ToolItem(
@@ -73,8 +71,10 @@ private val mainScreenTools = listOf(
 @Composable
 fun MainAppContent(
     modifier: Modifier = Modifier,
+    mainViewModel: MainViewModel = viewModel(),
     onNavigate: (Screen) -> Unit
 ) {
+    val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -121,11 +121,12 @@ fun MainAppContent(
                 .fillMaxSize()
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Column {
-                    Text("Merhaba!", style = MaterialTheme.typography.headlineMedium)
-                    Text("Bugün ne yapmak istersin?", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
+                // GlanceHeader'a ViewModel'dan gelen tüm ilgili state'leri geçiyoruz
+                GlanceHeader(
+                    tipOfTheDay = mainUiState.tipOfTheDay,
+                    isUpdateAvailable = mainUiState.isUpdateAvailable,
+                    latestVersionName = mainUiState.latestVersionName
+                )
             }
             items(
                 items = mainScreenTools,
@@ -185,5 +186,19 @@ fun ToolCard(
 fun MainAppContentPreview() {
     LifeToolsTheme {
         MainAppContent(onNavigate = {})
+    }
+}
+
+@Preview(showBackground = true, name = "Glance Header - Update Available")
+@Composable
+fun GlanceHeaderUpdatePreview() {
+    LifeToolsTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            GlanceHeader(
+                tipOfTheDay = "Bu bir ipucudur.",
+                isUpdateAvailable = true,
+                latestVersionName = "v0.2.0-beta"
+            )
+        }
     }
 }
