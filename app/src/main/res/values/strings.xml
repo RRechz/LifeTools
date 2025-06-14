@@ -25,6 +25,10 @@
     <string name="purple_color_name">Purple</string>
     <string name="orange_color_name">Orange</string>
     <string name="teal_color_name">Cyan</string>
+    <string name="tool_sd_to_hd_title">SD to HD</string>
+    <string name="tool_todo_with_ai_title">To-Do with AI</string>
+    <string name="tool_ai_effect_photos_title">AI Photo Effects</string>
+    <string name="coming_soon_MAİN">This feature will coming soon!</string>
 
     <!-- Onboarding Screen list -->
     <string name="list_recipe">Cooking recipes with Gemini AI</string>

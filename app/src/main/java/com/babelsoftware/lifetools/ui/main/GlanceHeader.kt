@@ -1,6 +1,7 @@
 package com.babelsoftware.lifetools.ui.main
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -28,24 +28,22 @@ import java.util.Locale
 fun GlanceHeader(
     modifier: Modifier = Modifier,
     tipOfTheDay: String,
-    isUpdateAvailable: Boolean, // Yeni parametre
-    latestVersionName: String?  // Yeni parametre
+    isUpdateAvailable: Boolean,
+    latestVersionName: String?
 ) {
-    // AnimatedContent artık güncelleme durumuna göre iki farklı içerik arasında geçiş yapacak
     AnimatedContent(
         targetState = isUpdateAvailable,
         transitionSpec = {
-            // Yukarı aşağı kayma animasyonu
+            // Animasyon fonksiyonları artık doğru şekilde import edildiği için çalışacaktır
             slideInVertically { height -> height } + fadeIn() togetherWith
                     slideOutVertically { height -> -height } + fadeOut()
         },
-        label = "Glance Content Animation"
+        label = "Glance Content Animation",
+        modifier = modifier
     ) { updateAvailable ->
         if (updateAvailable) {
-            // YENİ: Güncelleme mevcut olduğunda gösterilecek içerik
             UpdateAvailableContent(versionName = latestVersionName ?: "")
         } else {
-            // Normalde gösterilecek içerik (Karşılama, Tarih, İpucu)
             DefaultGlanceContent(tipOfTheDay = tipOfTheDay)
         }
     }
@@ -81,7 +79,6 @@ private fun DefaultGlanceContent(tipOfTheDay: String) {
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.primary
         )
-        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -100,13 +97,13 @@ private fun UpdateAvailableContent(versionName: String) {
         Spacer(modifier = Modifier.width(12.dp))
         Column {
             Text(
-                text = "Yeni Güncelleme Mevcut!",
+                "Yeni Güncelleme Mevcut!",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "$versionName sürümü için Ayarlar'ı kontrol et.",
+                "$versionName sürümü için Ayarlar'ı kontrol et.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

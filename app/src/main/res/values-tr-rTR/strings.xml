@@ -26,6 +26,10 @@
     <string name="purple_color_name">Mor</string>
     <string name="orange_color_name">Turuncu</string>
     <string name="teal_color_name">Camgöbeği</string>
+    <string name="tool_sd_to_hd_title">SD to HD</string>
+    <string name="tool_todo_with_ai_title">AI ile ToDo</string>
+    <string name="tool_ai_effect_photos_title">AI Fotoğraf Efektleri</string>
+    <string name="coming_soon_MAİN">Bu özellik yakında eklenecektir.</string>
 
     <!-- Onboarding Screen list -->
     <string name="list_recipe">Gemini Yapay Zekası ile yemek tarifleri</string>
