@@ -3,6 +3,7 @@ package com.babelsoftware.lifetools.ui.main
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,7 +31,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.lifetools.BuildConfig
 import com.babelsoftware.lifetools.R
 import com.babelsoftware.lifetools.ToolItem
-import com.babelsoftware.lifetools.ui.main.GlanceHeader
 import com.babelsoftware.lifetools.ui.navigation.Screen
 import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
 import java.text.SimpleDateFormat
@@ -37,10 +38,8 @@ import java.util.*
 
 // --- DATA ve SABİTLER ---
 
-// YENİ: Araç kategorilerini tanımlamak için veri sınıfı
 data class ToolCategory(val title: String, val tools: List<ToolItem>)
 
-// YENİ: Araçlar artık kategorilere ayrıldı
 private val toolCategories = listOf(
     ToolCategory(
         title = "Popüler Araçlar",
@@ -63,17 +62,18 @@ private val upcomingTools = listOf(
     ToolItem(titleResId = R.string.tool_ai_effect_photos_title, iconResId = R.drawable.photo_effect_with_ai, screenRoute = Screen.MAIN)
 )
 
+
 // --- ANA EKRAN COMPOSABLE'I ---
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainAppContent(
+fun MainScreen(
     modifier: Modifier = Modifier,
     mainViewModel: MainViewModel = viewModel(),
     onNavigate: (Screen) -> Unit
 ) {
     val mainUiState by mainViewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current // HATA DÜZELTMESİ: Toast mesajı için context'i burada alıyoruz.
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -107,35 +107,35 @@ fun MainAppContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            contentPadding = PaddingValues(vertical = 24.dp), // YENİLİK: Dikey boşluk artırıldı
+            verticalArrangement = Arrangement.spacedBy(32.dp) // YENİLİK: Bölümler arası boşluk artırıldı
         ) {
             item {
-                GlanceHeader(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    tipOfTheDay = mainUiState.tipOfTheDay,
+                // YENİLİK: Header artık daha belirgin bir kart içinde
+                GlanceHeaderCard(
+                    modifier = Modifier.padding(horizontal = 16.dp),
                     isUpdateAvailable = mainUiState.isUpdateAvailable,
-                    latestVersionName = mainUiState.latestVersionName
+                    latestVersionName = mainUiState.latestVersionName.toString(),
+                    tipOfTheDay = mainUiState.tipOfTheDay
                 )
             }
-            // YENİ: Kategoriler listesi üzerinde dönerek her bir kategoriyi oluştur
+
             items(items = toolCategories, key = { it.title }) { category ->
                 ToolsSection(
                     title = category.title,
                     tools = category.tools,
-                    onToolClick = { tool -> onNavigate(tool.screenRoute) },
-                    onSeeAllClick = { /* TODO */ }
+                    onToolClick = { tool -> onNavigate(tool.screenRoute) }
                 )
             }
+
             item {
                 ToolsSection(
                     title = "Yakında Gelecekler",
                     tools = upcomingTools,
+                    isEnabled = false, // YENİLİK: Kartların pasif olduğunu belirtiyoruz
                     onToolClick = {
-                        // HATA DÜZELTMESİ: 'context' değişkenini burada kullanıyoruz.
                         Toast.makeText(context, R.string.coming_soon_MAİN, Toast.LENGTH_SHORT).show()
-                    },
-                    onSeeAllClick = null
+                    }
                 )
             }
         }
@@ -143,7 +143,7 @@ fun MainAppContent(
 }
 
 
-// --- YARDIMCI COMPOSABLE'LAR ---
+// --- YENİLENMİŞ YARDIMCI COMPOSABLE'LAR ---
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -151,8 +151,8 @@ fun ToolsSection(
     title: String,
     tools: List<ToolItem>,
     onToolClick: (ToolItem) -> Unit,
-    onSeeAllClick: (() -> Unit)?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true // YENİLİK: Bölümdeki kartların aktif olup olmadığını kontrol eder
 ) {
     Column(modifier = modifier) {
         Row(
@@ -162,23 +162,22 @@ fun ToolsSection(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = title, style = MaterialTheme.typography.titleLarge)
-            if (onSeeAllClick != null) {
-                TextButton(onClick = onSeeAllClick) { Text("Tümü") }
-            }
+            Text(text = title, style = MaterialTheme.typography.headlineSmall) // YENİLİK: Başlık stili daha belirgin
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(items = tools, key = { it.titleResId }) { tool ->
                 ToolCard(
                     toolItem = tool,
                     onClick = { onToolClick(tool) },
+                    isEnabled = isEnabled, // YENİLİK: Kartın durumunu iletiyoruz
                     modifier = Modifier
                         .width(160.dp)
-                        // .animateItemPlacement() // Anotasyon doğru olduğu için artık çalışacaktır.
+                        .height(180.dp) // YENİLİK: Kartlara sabit bir yükseklik vererek daha tutarlı bir görünüm sağlandı
+                        // .animateItemPlacement
                 )
             }
         }
@@ -190,24 +189,68 @@ fun ToolsSection(
 fun ToolCard(
     toolItem: ToolItem,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true // YENİLİK: Kartın aktif/pasif durumunu kontrol eder
 ) {
     val title = stringResource(id = toolItem.titleResId)
     Card(
         onClick = onClick,
-        modifier = modifier.aspectRatio(1f),
+        modifier = modifier.alpha(if (isEnabled) 1f else 0.6f), // YENİLİK: Pasifse kartı soluklaştır
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceAround // YENİLİK: İçerik dikeyde daha iyi dağıtıldı
         ) {
-            Icon(painter = painterResource(id = toolItem.iconResId), contentDescription = title, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            // YENİLİK: `Icon` yerine `Image` kullanıldı. Bu sayede çok renkli ve detaylı görseller kullanılabilir.
+            Image(
+                painter = painterResource(id = toolItem.iconResId),
+                contentDescription = title,
+                modifier = Modifier.size(64.dp) // YENİLİK: Görsel boyutu artırıldı
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun GlanceHeaderCard(
+    modifier: Modifier = Modifier,
+    isUpdateAvailable: Boolean,
+    latestVersionName: String,
+    tipOfTheDay: String
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Box(modifier = Modifier.padding(20.dp)) {
+            AnimatedContent(
+                targetState = isUpdateAvailable,
+                transitionSpec = {
+                    fadeIn() togetherWith fadeOut()
+                }, label = "Header Animation"
+            ) { hasUpdate ->
+                if (hasUpdate) {
+                    UpdateAvailableContent(versionName = latestVersionName)
+                } else {
+                    DefaultGlanceContent(tipOfTheDay = tipOfTheDay)
+                }
+            }
         }
     }
 }
@@ -224,9 +267,9 @@ private fun DefaultGlanceContent(tipOfTheDay: String) {
     val dateText = dateFormat.format(calendar.time)
 
     Column {
-        Text(text = tipOfTheDay, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Normal, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = "Günün İpucu: $tipOfTheDay", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = welcomeText, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
+        Text(text = welcomeText, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(2.dp))
         Text(text = dateText, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
     }
@@ -236,16 +279,22 @@ private fun DefaultGlanceContent(tipOfTheDay: String) {
 private fun UpdateAvailableContent(versionName: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Icon(imageVector = Icons.Filled.SystemUpdateAlt, contentDescription = "Güncelleme Mevcut", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(36.dp))
-        Spacer(modifier = Modifier.width(12.dp))
+        Icon(
+            imageVector = Icons.Filled.SystemUpdateAlt,
+            contentDescription = "Güncelleme Mevcut",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp)
+        )
         Column {
             Text("Yeni Güncelleme Mevcut!", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Text("$versionName sürümü için Ayarlar'ı kontrol et.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("$versionName sürümü için Ayarlar'ı kontrol et.", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
+
 
 // --- PREVIEW ---
 
@@ -253,6 +302,6 @@ private fun UpdateAvailableContent(versionName: String) {
 @Composable
 fun MainAppContentPreview() {
     LifeToolsTheme {
-        MainAppContent(onNavigate = {})
+        MainScreen(onNavigate = {})
     }
 }

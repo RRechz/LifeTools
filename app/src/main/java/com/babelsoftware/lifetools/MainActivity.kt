@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.lifetools.ui.OnboardingScreen
-import com.babelsoftware.lifetools.ui.main.MainAppContent
+import com.babelsoftware.lifetools.ui.main.MainScreen
 import com.babelsoftware.lifetools.ui.movie.MovieScreen
 import com.babelsoftware.lifetools.ui.navigation.Screen
 import com.babelsoftware.lifetools.ui.recipe.RecipeScreen
@@ -86,7 +86,7 @@ class MainActivity : ComponentActivity() {
                         true -> {
                             // Kurulum tamamlanmış, ana navigasyon mantığını çalıştır
                             when (currentScreen) {
-                                Screen.MAIN -> MainAppContent(onNavigate = { currentScreen = it })
+                                Screen.MAIN -> MainScreen(onNavigate = { currentScreen = it })
                                 Screen.SETTINGS -> SettingsScreen(
                                     onNavigateBack = { currentScreen = Screen.MAIN },
                                     onNavigateToAppearanceSettings = { currentScreen = Screen.APPEARANCE_SETTINGS },
