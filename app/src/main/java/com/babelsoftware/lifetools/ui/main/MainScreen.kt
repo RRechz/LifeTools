@@ -37,10 +37,24 @@ import java.util.*
 
 // --- DATA ve SABİTLER ---
 
-private val mainTools = listOf(
-    ToolItem(titleResId = R.string.recipe_screen_title, iconResId = R.drawable.recipes_with_ai, screenRoute = Screen.RECIPES),
-    ToolItem(titleResId = R.string.movie_screen_title, iconResId = R.drawable.movie_with_ai, screenRoute = Screen.MOVIES),
-    ToolItem(titleResId = R.string.truth_or_dare, iconResId = R.drawable.truth_or_dare_with_ai, screenRoute = Screen.TRUTH_OR_DARE_HUB)
+// YENİ: Araç kategorilerini tanımlamak için veri sınıfı
+data class ToolCategory(val title: String, val tools: List<ToolItem>)
+
+// YENİ: Araçlar artık kategorilere ayrıldı
+private val toolCategories = listOf(
+    ToolCategory(
+        title = "Popüler Araçlar",
+        tools = listOf(
+            ToolItem(titleResId = R.string.recipe_screen_title, iconResId = R.drawable.recipes_with_ai, screenRoute = Screen.RECIPES),
+            ToolItem(titleResId = R.string.movie_screen_title, iconResId = R.drawable.movie_with_ai, screenRoute = Screen.MOVIES)
+        )
+    ),
+    ToolCategory(
+        title = "Oyun Araçları",
+        tools = listOf(
+            ToolItem(titleResId = R.string.truth_or_dare, iconResId = R.drawable.truth_or_dare_with_ai, screenRoute = Screen.TRUTH_OR_DARE_HUB)
+        )
+    )
 )
 
 private val upcomingTools = listOf(
@@ -104,10 +118,11 @@ fun MainAppContent(
                     latestVersionName = mainUiState.latestVersionName
                 )
             }
-            item {
+            // YENİ: Kategoriler listesi üzerinde dönerek her bir kategoriyi oluştur
+            items(items = toolCategories, key = { it.title }) { category ->
                 ToolsSection(
-                    title = "Araçların",
-                    tools = mainTools,
+                    title = category.title,
+                    tools = category.tools,
                     onToolClick = { tool -> onNavigate(tool.screenRoute) },
                     onSeeAllClick = { /* TODO */ }
                 )
@@ -118,7 +133,7 @@ fun MainAppContent(
                     tools = upcomingTools,
                     onToolClick = {
                         // HATA DÜZELTMESİ: 'context' değişkenini burada kullanıyoruz.
-                        Toast.makeText(context, R.string.coming_soon, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.coming_soon_MAİN, Toast.LENGTH_SHORT).show()
                     },
                     onSeeAllClick = null
                 )
