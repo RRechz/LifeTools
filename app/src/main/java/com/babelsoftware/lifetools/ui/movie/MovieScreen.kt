@@ -16,9 +16,7 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Theaters // Alternatif ikon
-import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -176,6 +174,21 @@ fun FilterSection(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !uiState.isLoading
                     )
+                    // YENİ: İMDB PUAN FİLTRESİ BURAYA EKLENDİ
+                    Column {
+                        Text(
+                            text = "İMDB (beta): ${String.format("%.1f", uiState.imdbRating)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                        Slider(
+                            value = uiState.imdbRating,
+                            onValueChange = { movieViewModel.onImdbRatingChanged(it) },
+                            valueRange = 0f..10f,
+                            steps = 9, // 10 eşit aralık için 9 adım (1.0, 2.0, ..., 10.0)
+                            enabled = !uiState.isLoading
+                        )
+                    }
                     FilterChipGroup(
                         title = stringResource(id = R.string.platforms_selection),
                         allItems = allPlatforms,
@@ -309,67 +322,5 @@ fun MovieScreenPreview_Empty() {
         // Bu preview, MovieScreen'in başlangıçtaki boş halini gösterir.
         // uiState varsayılan olarak boş bir recommendationList ile başlar.
         MovieScreen(onNavigateBack = {})
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "Movie Screen - Loading State")
-@Composable
-fun MovieScreenPreview_Loading() {
-    LifeToolsTheme {
-        // Yüklenme durumunu doğrudan simüle etmek için,
-        // LazyColumn içinde gösterdiğimiz yükleme item'ını burada oluşturabiliriz.
-        Scaffold(
-            topBar = { TopAppBar(title = { Text("Film & Dizi Önerileri") }) }
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator() // Yüklenme anında gösterdiğimiz component
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, name = "Movie Screen - With Results")
-@Composable
-fun MovieScreenPreview_WithResults() {
-    // Örnek bir öneri listesi oluşturalım.
-    val sampleRecommendations = listOf(
-        MovieRecommendation(
-            title = "Başlangıç (Inception)",
-            year = "2010",
-            platforms = "Netflix, Prime Video",
-            description = "Çok yetenekli bir hırsız olan Dom Cobb'un uzmanlık alanı, insanların en savunmasız oldukları rüya görme anında, bilinçaltının derinliklerindeki değerli sırları çekip çıkarmak ve onları çalmaktır."
-        ),
-        MovieRecommendation(
-            title = "Yıldızlararası (Interstellar)",
-            year = "2014",
-            platforms = "Netflix",
-            description = "İnsanlığın sonunun geldiği bir gelecekte, bir grup kaşif, insanlık için yeni bir yuva bulmak amacıyla solucan deliğinden geçerek yıldızlararası bir yolculuğa çıkar."
-        )
-    )
-
-    LifeToolsTheme {
-        // Bu preview, tüm ekranı simüle etmek yerine sadece sonuç kartlarının
-        // bir liste içinde nasıl göründüğünü test eder.
-        Scaffold(
-            topBar = { TopAppBar(title = { Text("Film & Dizi Önerileri") }) }
-        ) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier.padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(sampleRecommendations) { recommendation ->
-                    MovieRecommendationCard(recommendation = recommendation)
-                }
-            }
-        }
     }
 }

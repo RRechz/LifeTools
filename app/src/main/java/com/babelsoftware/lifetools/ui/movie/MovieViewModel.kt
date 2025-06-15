@@ -18,7 +18,8 @@ data class MovieRecommendation(
     val title: String = "N/A",
     val year: String = "N/A",
     val platforms: String = "N/A",
-    val description: String = "Açıklama bulunamadı."
+    val description: String = "Açıklama bulunamadı.",
+    val imdb: String
 )
 
 // İYİLEŞTİRME 2: UiState'i yapılandırılmış veri listesini tutacak şekilde güncelledik
@@ -27,6 +28,7 @@ data class MovieUiState(
     val selectedGenres: List<String> = emptyList(),
     val yearInput: String = "",
     val selectedPlatforms: List<String> = emptyList(),
+    val imdbRating: Float = 7.0f, // YENİ: Başlangıç değeri olarak 7.0
     val recommendationList: List<MovieRecommendation> = emptyList(), // recommendations: String yerine
     val isLoading: Boolean = false,
     val errorMessage: String? = null
@@ -48,6 +50,11 @@ class MovieViewModel : ViewModel() {
         } catch (e: Exception) {
             _uiState.update { it.copy(errorMessage = "Film/Dizi AI Modeli başlatılamadı: ${e.localizedMessage}") }
         }
+    }
+
+    // YENİ: İMDB puanını güncelleyecek fonksiyon
+    fun onImdbRatingChanged(newRating: Float) {
+        _uiState.update { it.copy(imdbRating = newRating, recommendationList = emptyList(), errorMessage = null) }
     }
 
     // Filtre güncelleme fonksiyonları aynı, sadece 'recommendations' yerine 'recommendationList'i temizliyorlar
@@ -97,6 +104,9 @@ class MovieViewModel : ViewModel() {
         if (currentState.yearInput.isNotBlank()) prompt += "\n- Yapım Yılı: ${currentState.yearInput} yılına yakın"
         if (currentState.selectedPlatforms.isNotEmpty()) prompt += "\n- Platformlar: ${currentState.selectedPlatforms.joinToString(", ")}"
 
+        // YENİ: Prompt'a İMDB puanı filtresini ekliyoruz
+        prompt += "\n- İMDB Puanı: ${currentState.imdbRating} ve üzeri"
+
         prompt += """
 
         Lütfen 3 adet öneri sun. Her bir öneriyi şu formatta ve etiketleri kullanarak hazırla:
@@ -137,6 +147,7 @@ class MovieViewModel : ViewModel() {
             val lines = block.lines()
             var title = ""
             var year = ""
+            var imdb = ""
             var platforms = ""
             var description = ""
 
@@ -144,6 +155,7 @@ class MovieViewModel : ViewModel() {
                 when {
                     line.startsWith("BAŞLIK:") -> title = line.removePrefix("BAŞLIK:").trim()
                     line.startsWith("YIL:") -> year = line.removePrefix("YIL:").trim()
+                    line.startsWith("IMDB:") -> imdb = line.removePrefix("IMDB:").trim() // YENİ
                     line.startsWith("PLATFORMLAR:") -> platforms = line.removePrefix("PLATFORMLAR:").trim()
                     line.startsWith("AÇIKLAMA:") -> description = line.removePrefix("AÇIKLAMA:").trim()
                     // Eğer açıklama birden çok satıra yayılıyorsa, onu mevcut açıklamaya ekle
@@ -152,7 +164,7 @@ class MovieViewModel : ViewModel() {
                 }
             }
             if (title.isNotEmpty()) {
-                recommendations.add(MovieRecommendation(title, year, platforms, description))
+                recommendations.add(MovieRecommendation(title, year, platforms, description, imdb))
             }
         }
         return recommendations
