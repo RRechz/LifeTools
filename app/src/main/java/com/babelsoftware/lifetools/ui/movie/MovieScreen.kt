@@ -2,14 +2,20 @@
 package com.babelsoftware.lifetools.ui.movie
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Theaters // Alternatif ikon
 import androidx.compose.material.icons.filled.Tv
@@ -65,7 +71,89 @@ fun MovieScreen(
         ) {
             // FİLTRELEME BÖLÜMÜ (tek bir item içinde)
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                FilterSection(
+                    uiState = uiState,
+                    movieViewModel = movieViewModel
+                )
+            }
+
+            // SONUÇ BÖLÜMÜ
+            if (uiState.isLoading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else if (uiState.recommendationList.isNotEmpty()) {
+                // Her bir öneri için ayrı bir kart oluşturuyoruz
+                items(uiState.recommendationList, key = { it.title + it.year }) { recommendation ->
+                    MovieRecommendationCard(recommendation = recommendation)
+                }
+            } else {
+                // Başlangıçta veya sonuç yoksa gösterilecek yer tutucu
+                item {
+                    Box(modifier = Modifier.fillParentMaxHeight(0.5f).fillParentMaxWidth(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(id = R.string.ai_movie_response_placeholder),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// YENİ: Genişletilebilir Filtreleme Bölümü Composable'ı
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun FilterSection(
+    uiState: MovieUiState,
+    movieViewModel: MovieViewModel
+) {
+    var isExpanded by remember { mutableStateOf(true) } // Başlangıçta açık olsun
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp))
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            // Tıklanabilir Başlık
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.FilterList,
+                    contentDescription = "Filtrele",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Filtreleme Seçenekleri",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (isExpanded) "Gizle" else "Göster"
+                )
+            }
+
+            // Genişletilebilir İçerik
+            AnimatedVisibility(visible = isExpanded) {
+                Column(
+                    modifier = Modifier.padding(top = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    HorizontalDivider() // Başlık ile filtreler arasına ayraç
                     ContentTypeSelector(
                         selectedContentType = uiState.selectedContentType,
                         onContentTypeSelected = { movieViewModel.selectContentType(it) },
@@ -110,31 +198,6 @@ fun MovieScreen(
                     }
                 }
             }
-
-            // SONUÇ BÖLÜMÜ
-            if (uiState.isLoading) {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
-            } else if (uiState.recommendationList.isNotEmpty()) {
-                // Her bir öneri için ayrı bir kart oluşturuyoruz
-                items(uiState.recommendationList, key = { it.title + it.year }) { recommendation ->
-                    MovieRecommendationCard(recommendation = recommendation)
-                }
-            } else {
-                // Başlangıçta veya sonuç yoksa gösterilecek yer tutucu
-                item {
-                    Box(modifier = Modifier.fillParentMaxHeight(0.5f).fillParentMaxWidth(), contentAlignment = Alignment.Center) {
-                        Text(
-                            text = stringResource(id = R.string.ai_movie_response_placeholder),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
         }
     }
 }
@@ -157,7 +220,8 @@ fun ContentTypeSelector(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+// İYİLEŞTİRME: FilterChipGroup artık yatayda kaydırılabilir (LazyRow kullanıyor)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterChipGroup(
     title: String,
@@ -167,12 +231,27 @@ fun FilterChipGroup(
     enabled: Boolean
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
-        FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            allItems.forEach { item ->
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        // FlowRow yerine LazyRow kullanıyoruz
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp), // Çipler arası yatay boşluk
+            contentPadding = PaddingValues(horizontal = 2.dp) // Listenin kenarlarında hafif boşluk
+        ) {
+            items(items = allItems, key = { it }) { item ->
                 val isSelected = selectedItems.contains(item)
-                FilterChip(selected = isSelected, onClick = { onItemSelected(item) }, label = { Text(item) },
-                    leadingIcon = if (isSelected) { { Icon(Icons.Filled.Done, null, modifier = Modifier.size(FilterChipDefaults.IconSize)) } } else { null },
+                FilterChip(
+                    selected = isSelected,
+                    onClick = { onItemSelected(item) },
+                    label = { Text(item) },
+                    leadingIcon = if (isSelected) {
+                        { Icon(Icons.Filled.Done, null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
+                    } else {
+                        null
+                    },
                     enabled = enabled
                 )
             }
