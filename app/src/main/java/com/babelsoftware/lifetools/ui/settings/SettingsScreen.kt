@@ -1,6 +1,6 @@
-// File: ui/settings/SettingsScreen.kt
 package com.babelsoftware.lifetools.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,13 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -27,31 +26,16 @@ import com.babelsoftware.lifetools.BuildConfig
 import com.babelsoftware.lifetools.R
 import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
 
-// --- Bu kısım ui/components/SettingComponents.kt gibi ayrı bir dosyaya taşınabilir ---
-
-@Composable
-fun getSettingItemShape(
-    isFirst: Boolean,
-    isLast: Boolean,
-    cornerRadius: Dp = 20.dp
-): Shape {
-    return when {
-        isFirst && isLast -> RoundedCornerShape(cornerRadius) // Tek başına
-        isFirst -> RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
-        isLast -> RoundedCornerShape(bottomStart = cornerRadius, bottomEnd = cornerRadius)
-        else -> RectangleShape
-    }
-}
-
+// --- Modern SettingItem ---
 @Composable
 fun SettingItem(
     modifier: Modifier = Modifier,
     icon: ImageVector?,
     title: String,
     subtitle: String? = null,
-    shape: Shape,
-    onClick: (() -> Unit)? = null, // Tıklanabilir olmayabilir, bu yüzden nullable
-    trailingContent: (@Composable () -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    toggleState: MutableState<Boolean>? = null
 ) {
     val rowModifier = if (onClick != null) {
         modifier.clickable(onClick = onClick)
@@ -59,42 +43,58 @@ fun SettingItem(
         modifier
     }
 
-    Surface(
-        modifier = Modifier
+    Row(
+        modifier = rowModifier
             .fillMaxWidth()
-            .clip(shape)
-            .then(rowModifier), // Tıklanabilirlik için modifier'ı buraya uygula
-        color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp),
-        tonalElevation = 1.dp
+            .padding(vertical = 12.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = if (subtitle == null) 16.dp else 12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            icon?.let {
+        icon?.let {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
                     imageVector = it,
                     contentDescription = title,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.secondary
+                    tint = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.width(16.dp))
             }
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge)
-                subtitle?.let {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(text = it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+            )
+            subtitle?.let {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-            // Sağ taraftaki içerik
-            if (trailingContent != null) {
-                trailingContent()
-            } else if (onClick != null) { // Sadece tıklanabilirse ve özel içerik yoksa oku göster
+        }
+
+        trailingContent?.invoke()
+
+        toggleState?.let {
+            Switch(
+                checked = it.value,
+                onCheckedChange = { checked -> it.value = checked }
+            )
+        } ?: run {
+            if (onClick != null && trailingContent == null) {
                 Icon(
-                    imageVector = Icons.Filled.ChevronRight,
+                    imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -103,18 +103,54 @@ fun SettingItem(
     }
 }
 
+// --- Başlık ---
 @Composable
-fun SettingsCategoryTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 4.dp)
-    )
+fun CategoryTitleDecorated(title: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(24.dp)
+                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(2.dp))
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
 }
 
-// --- Ana Ekran Composable'ı ---
+// --- Gradient Kart ---
+@Composable
+fun GradientCard(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(4.dp, RoundedCornerShape(24.dp)),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.0f)
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
+                )
+                .padding(16.dp),
+            content = content
+        )
+    }
+}
 
+// --- Ana SettingsScreen ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -128,6 +164,8 @@ fun SettingsScreen(
     var showUpdateDialog by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
+    val notificationsEnabled = remember { mutableStateOf(true) }
+
     LaunchedEffect(updateUiState.updateAvailable) {
         if (updateUiState.updateAvailable) {
             showUpdateDialog = true
@@ -135,101 +173,141 @@ fun SettingsScreen(
     }
 
     if (showUpdateDialog) {
-        // ... AlertDialog kodu aynı ...
+        AlertDialog(
+            onDismissRequest = { showUpdateDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showUpdateDialog = false }) {
+                    Text("Tamam")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showUpdateDialog = false
+                    updateUiState.downloadUrl?.let { url ->
+                        uriHandler.openUri(url)
+                    }
+                }) {
+                    Text("Git")
+                }
+            },
+            title = { Text("Güncelleme Mevcut") },
+            text = {
+                Text("Yeni sürüm bulundu: ${updateUiState.latestVersionName}\nLütfen en yeni özellikler için güncelleyin.")
+            }
+        )
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.settings_title)) },
-                navigationIcon = { IconButton(onClick = onNavigateBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp))
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Geri")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
+                )
             )
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
-            contentPadding = PaddingValues(all = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp) // Gruplar arası boşluk
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // --- GÖRÜNÜM & GENEL GRUBU ---
+
+            // --- Kişiselleştirme Kartı ---
             item {
-                Column { // Öğeleri Divider ile birleştirmek için Column içine alıyoruz
-                    SettingsCategoryTitle(title = "Kişiselleştirme") // Ortak başlık
+                GradientCard {
+                    CategoryTitleDecorated("Kişiselleştirme")
+
                     SettingItem(
                         icon = Icons.Filled.Palette,
                         title = "Tema ve Renkler",
                         subtitle = "Açık/Koyu mod, dinamik renkler, ana renk",
-                        shape = getSettingItemShape(isFirst = true, isLast = false),
                         onClick = onNavigateToAppearanceSettings
                     )
-                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp)) // İkon hizasından Divider
+
+                    Divider(Modifier.padding(start = 64.dp))
+
                     SettingItem(
                         icon = Icons.Filled.Language,
                         title = stringResource(R.string.language),
                         subtitle = stringResource(R.string.language_subtitle),
-                        shape = getSettingItemShape(isFirst = false, isLast = true),
                         onClick = onNavigateToLanguageSettings
                     )
                 }
             }
 
-            // --- GÜNCELLEME VE BİLGİ GRUBU ---
+            // --- Genel Kartı ---
             item {
-                Column {
-                    SettingsCategoryTitle(title = "Uygulama")
-                    // Güncelleme Öğesi
+                GradientCard {
+                    CategoryTitleDecorated("Genel")
+
+                    SettingItem(
+                        icon = Icons.Filled.Notifications,
+                        title = "Bildirimler",
+                        subtitle = "Anlık uyarılar ve hatırlatıcılar",
+                        toggleState = notificationsEnabled
+                    )
+                }
+            }
+
+            // --- Uygulama Kartı ---
+            item {
+                GradientCard {
+                    CategoryTitleDecorated("Uygulama")
+
                     val updateSubtitle = when {
                         updateUiState.isChecking -> stringResource(id = R.string.checking_for_updates)
                         updateUiState.updateCheckError != null -> updateUiState.updateCheckError!!
                         updateUiState.updateAvailable -> "Yeni sürüm mevcut: ${updateUiState.latestVersionName}"
                         else -> "Uygulamanız güncel"
                     }
+
                     SettingItem(
                         icon = Icons.Filled.SystemUpdateAlt,
                         title = stringResource(id = R.string.check_for_updates),
                         subtitle = updateSubtitle,
-                        shape = getSettingItemShape(isFirst = true, isLast = false),
                         onClick = { if (!updateUiState.isChecking) updateViewModel.checkForUpdates() },
                         trailingContent = {
-                            if (updateUiState.isChecking) CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                            else if (updateUiState.updateAvailable) Icon(Icons.Filled.NewLabel, "Güncelleme mevcut", tint = MaterialTheme.colorScheme.error)
+                            if (updateUiState.isChecking)
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            else if (updateUiState.updateAvailable)
+                                Icon(
+                                    Icons.Filled.NewLabel,
+                                    contentDescription = "Güncelleme mevcut",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
                         }
                     )
-                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
-                    // Versiyon Öğesi
+
+                    Divider(Modifier.padding(start = 64.dp))
+
                     SettingItem(
                         icon = Icons.Filled.Info,
                         title = stringResource(R.string.version),
                         subtitle = "v${BuildConfig.VERSION_NAME}",
-                        shape = getSettingItemShape(isFirst = false, isLast = false),
-                        onClick = null, // Tıklanabilir değil
-                        trailingContent = {} // Sağdaki oku kaldırır
+                        onClick = null,
+                        trailingContent = {}
                     )
-                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
-                    // Kaynak Kodu Öğesi
+
+                    Divider(Modifier.padding(start = 64.dp))
+
                     SettingItem(
                         icon = Icons.Filled.Source,
                         title = stringResource(R.string.source_code),
                         subtitle = stringResource(R.string.source_code_subtitle),
-                        shape = getSettingItemShape(isFirst = false, isLast = true),
-                        onClick = { uriHandler.openUri("https://github.com/RRechz/LifeTools") }
+                        onClick = {
+                            uriHandler.openUri("https://github.com/RRechz/LifeTools")
+                        }
                     )
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true, name = "Settings Screen Preview")
-@Composable
-fun SettingsScreenPreview() {
-    LifeToolsTheme {
-        SettingsScreen(
-            onNavigateBack = {},
-            onNavigateToAppearanceSettings = {},
-            onNavigateToLanguageSettings = {}
-        )
     }
 }

@@ -94,4 +94,5 @@
     <string name="language">Language</string>
     <string name="language_subtitle">Change app language</string>
     <string name="appearance">Appearance</string>
+    <string name="newversion">New Version Available</string>
 </resources>

@@ -93,4 +93,5 @@
     <string name="language">Dil</string>
     <string name="language_subtitle">Uygulama dilini değiştir</string>
     <string name="appearance">Görünüm</string>
+    <string name="newversion">Yeni sürüm mevcut!</string>
 </resources>
