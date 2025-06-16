@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">LifeTools</string>
 
-    <!-- Onboarding Screen -->
+    <!-- Kurulum Ekranı -->
     <string name="welcome_to_lifetool">LifeTools\'a Hoş Geldiniz!</string>
     <string name="onboarding_description">Başlamadan önce birkaç ayar yapalım.</string>
     <string name="choose_your_theme">Temanı seç:</string>
@@ -31,19 +31,29 @@
     <string name="tool_ai_effect_photos_title">AI Fotoğraf Efektleri</string>
     <string name="coming_soon_MAİN">Bu özellik yakında eklenecektir.</string>
 
-    <!-- Onboarding Screen list -->
+    <!-- Kurulum Ekranı Listesi -->
     <string name="list_recipe">Gemini Yapay Zekası ile yemek tarifleri</string>
     <string name="list_movie">Yapay zeka ile film/dizi önerileri alın</string>
     <string name="list_ToD">Gemini AI eşliğinde "Doğruluk mu? yoksa Cesaretlik mi?"</string>
     <string name="list_ToDo_Maker">Yapay zekanın yardımıyla kolayca bir “Yapılacaklar (To-Do)” listesi oluşturun!</string>
 
-    <!-- Onboarding Screen Finish -->
+    <!-- Kurulum Ekranı Bitiş -->
     <string name="onboarding_step_info_title">Her Şey Hazır!</string>
     <string name="onboarding_step_info_subtitle">LifeTool, günlük hayatınızı kolaylaştıracak ve eğlenceli hale getirecek yapay zeka destekli araçlar sunar. Keşfetmeye başla!</string>
     <string name="onboarding_app_feature_summary_title">Neler Bulacaksın?</string>
     <string name="lets_get_started">Hadi Başlayalım!</string>
 
-    <!-- Recipe Screen -->
+    <!-- Ana Ekran -->
+    <string name="popular_tools">Popüler Araçlar</string>
+    <string name="game_tools">Oyun Araçları</string>
+    <string name="menu">Menü</string>
+    <string name="lifetools_menu">LifeTools Menüsü</string>
+    <string name="settings">Ayarlar</string>
+    <string name="favorite_tools">Favori Araçlar Yakında Geliyor!</string>
+    <string name="favorite">Favoriler</string>
+    <string name="powered_by_ai">Yapay Zeka ile Güçlendirildi</string>
+
+    <!-- Yemek Tarif Ekranı -->
     <string name="recipe_screen_title">Yemek Tarifleri</string>
     <string name="ingredients_label">Malzemeler</string>
     <string name="ingredients_placeholder">Elinizdeki malzemeleri yazın (örn: domates, soğan, biber)</string>
@@ -51,7 +61,7 @@
     <string name="ai_response_placeholder">Yapay zeka cevapları burada görünecek…</string>
     <string name="back_to_main_screen">Ana Ekrana Geri Dön</string>
 
-    <!-- Movie -->
+    <!-- Film/Dizi -->
     <string name="movie_screen_title">Film &amp; Dizi Önerileri</string>
     <string name="coming_soon">Çok Yakında!</string>
     <string name="content_type_selection">Ne İzlemek İstersin?</string>
@@ -65,7 +75,7 @@
     <string name="ai_movie_response_placeholder">Film/dizi önerileri burada görünecek…</string>
     <string name="truth_or_dare">Doğruluk mu? yoksa Cesaretlik mi?</string>
 
-    <!-- Settings Screen -->
+    <!-- Ayarlar Ekranı -->
     <string name="settings_title">Ayarlar</string>
     <string name="settings_category_update">Uygulama Güncellemeleri</string>
     <string name="check_for_updates">Güncellemeleri Kontrol Et</string>

@@ -41,6 +41,16 @@
     <string name="onboarding_step_info_subtitle">LifeTool, günlük hayatınızı kolaylaştıracak ve eğlenceli hale getirecek yapay zeka destekli araçlar sunar. Keşfetmeye başla!</string>
     <string name="onboarding_app_feature_summary_title">Neler Bulacaksın?</string>
     <string name="lets_get_started">Hadi Başlayalım!</string>
+    
+    <!-- Home Screen -->
+    <string name="popular_tools">Popular Tools</string>
+    <string name="game_tools">Game Tools</string>
+    <string name="menu">Menu</string>
+    <string name="lifetools_menu">LifeTools Menu</string>
+    <string name="settings">Settings</string>
+    <string name="favorite_tools">Favorite Tools Coming Soon!</string>
+    <string name="favorite">Favorites</string>
+    <string name="powered_by_ai">Powered by AI</string>
 
     <!-- Recipe Screen -->
     <string name="recipe_screen_title">Food Recipes</string>

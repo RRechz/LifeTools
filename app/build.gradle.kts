@@ -99,6 +99,7 @@ dependencies {
 
     // YENİ BAĞIMLILIK: Compose Markdown
     implementation("com.github.jeziellago:compose-markdown:0.4.0")
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
 
     // YENİ BAĞIMLILIK: Reorderable (Sürükle-bırak için)
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
