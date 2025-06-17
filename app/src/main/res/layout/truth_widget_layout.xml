@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@drawable/widget_background"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/widget_logo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/gemini_logo"
+        android:contentDescription="Yapay Zeka Logo"
+        android:tint="?android:attr/textColorSecondary" />
+    <TextView
+        android:id="@+id/widget_question_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorPrimary"
+        tools:text="Yeni soru için dokun" />
+    <ImageView
+        android:id="@+id/widget_refresh_button"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/widget_refresh"
+        android:contentDescription="Yenile"
+        android:tint="?android:attr/textColorSecondary" />
+</LinearLayout>

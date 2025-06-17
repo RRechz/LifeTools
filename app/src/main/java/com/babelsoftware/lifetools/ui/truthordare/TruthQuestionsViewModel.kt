@@ -80,6 +80,36 @@ class TruthQuestionsViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Widget için tek ve kısa bir doğruluk sorusu getirir.
+     * Bu fonksiyon direkt olarak çağrılmak için 'suspend' olarak işaretlenmiştir.
+     * @return Başarılı olursa soruyu (String), başarısız olursa null döner.
+     */
+    suspend fun fetchSingleQuestionForWidget(): String? {
+        if (!::generativeModel.isInitialized) {
+            // Hata durumunu çağıran yere bildirmek için null dönebiliriz.
+            return null
+        }
+
+        // Widget için daha kısa ve tek bir soru isteyen özel prompt.
+        val prompt = """
+        Bir mobil uygulama widget'ında gösterilmek üzere, ilgi çekici ve çok kısa, tek bir "doğruluk" sorusu üret. 
+        Cevap sadece soru metnini içermelidir. Başka hiçbir ek açıklama veya numara olmamalıdır.
+        Örnek:
+        En son kime yalan söyledin?
+        En büyük sırrın ne?
+        """.trimIndent()
+
+        return try {
+            val response = generativeModel.generateContent(prompt)
+            // Gelen cevabın null değilse ve boş değilse ilk satırını alalım.
+            response.text?.lines()?.firstOrNull { it.isNotBlank() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null // Hata durumunda null dön.
+        }
+    }
+
     fun clearErrorMessage() {
         _uiState.update { it.copy(errorMessage = null) }
     }

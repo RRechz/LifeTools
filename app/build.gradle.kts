@@ -25,7 +25,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0-beta.5"
+        versionName = "0.1.0-beta.6"
 
         // API anahtarını BuildConfigField olarak ekle
         buildConfigField("String", "GEMINI_API_KEY", "\"${localProperties.getProperty("GEMINI_API_KEY") ?: ""}\"")
@@ -97,15 +97,16 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
     implementation(libs.firebase.crashlytics.buildtools)
 
-    // YENİ BAĞIMLILIK: Compose Markdown
     implementation("com.github.jeziellago:compose-markdown:0.4.0")
     implementation("com.airbnb.android:lottie-compose:6.1.0")
 
-    // YENİ BAĞIMLILIK: Reorderable (Sürükle-bırak için)
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
 
     // only for debug and preview
     debugImplementation("androidx.test:core-ktx:1.6.1")
+
+    // for Widget
+    implementation("androidx.work:work-runtime-ktx:2.10.1")
 
     // Test Bağımlılıkları
     testImplementation(libs.junit)
