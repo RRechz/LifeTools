@@ -177,7 +177,7 @@ fun SettingsScreen(
             onDismissRequest = { showUpdateDialog = false },
             confirmButton = {
                 TextButton(onClick = { showUpdateDialog = false }) {
-                    Text("Tamam")
+                    Text(stringResource(R.string.later))
                 }
             },
             dismissButton = {
@@ -187,12 +187,12 @@ fun SettingsScreen(
                         uriHandler.openUri(url)
                     }
                 }) {
-                    Text("Git")
+                    Text(stringResource(R.string.update))
                 }
             },
-            title = { Text("Güncelleme Mevcut") },
+            title = { Text(stringResource(R.string.update_available_title)) },
             text = {
-                Text("Yeni sürüm bulundu: ${updateUiState.latestVersionName}\nLütfen en yeni özellikler için güncelleyin.")
+                Text("${stringResource(R.string.update_found)} ${updateUiState.latestVersionName}\n${stringResource(R.string.update_prompt)}")
             }
         )
     }
@@ -223,12 +223,12 @@ fun SettingsScreen(
             // --- Kişiselleştirme Kartı ---
             item {
                 GradientCard {
-                    CategoryTitleDecorated("Kişiselleştirme")
+                    CategoryTitleDecorated(stringResource(R.string.customization))
 
                     SettingItem(
                         icon = Icons.Filled.Palette,
-                        title = "Tema ve Renkler",
-                        subtitle = "Açık/Koyu mod, dinamik renkler, ana renk",
+                        title = stringResource(R.string.theme_and_colors),
+                        subtitle = stringResource(R.string.theme_and_colors_subtitle),
                         onClick = onNavigateToAppearanceSettings
                     )
 
@@ -246,12 +246,12 @@ fun SettingsScreen(
             // --- Genel Kartı ---
             item {
                 GradientCard {
-                    CategoryTitleDecorated("Genel")
+                    CategoryTitleDecorated(stringResource(R.string.general))
 
                     SettingItem(
                         icon = Icons.Filled.Notifications,
-                        title = "Bildirimler",
-                        subtitle = "Anlık uyarılar ve hatırlatıcılar",
+                        title = stringResource(R.string.notifications),
+                        subtitle = stringResource(R.string.update_notifications),
                         toggleState = notificationsEnabled
                     )
                 }
@@ -260,13 +260,13 @@ fun SettingsScreen(
             // --- Uygulama Kartı ---
             item {
                 GradientCard {
-                    CategoryTitleDecorated("Uygulama")
+                    CategoryTitleDecorated(stringResource(R.string.settings_app))
 
                     val updateSubtitle = when {
                         updateUiState.isChecking -> stringResource(id = R.string.checking_for_updates)
                         updateUiState.updateCheckError != null -> updateUiState.updateCheckError!!
-                        updateUiState.updateAvailable -> "Yeni sürüm mevcut: ${updateUiState.latestVersionName}"
-                        else -> "Uygulamanız güncel"
+                        updateUiState.updateAvailable -> "${stringResource(R.string.newversion)} ${updateUiState.latestVersionName}"
+                        else -> stringResource(R.string.no_updates_available)
                     }
 
                     SettingItem(
@@ -280,7 +280,7 @@ fun SettingsScreen(
                             else if (updateUiState.updateAvailable)
                                 Icon(
                                     Icons.Filled.NewLabel,
-                                    contentDescription = "Güncelleme mevcut",
+                                    contentDescription = stringResource(R.string.update_available_title),
                                     tint = MaterialTheme.colorScheme.error
                                 )
                         }

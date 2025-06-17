@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    } // <-- onCreate fonksiyonunun BİTİŞİ
+    }
 
     // DİĞER FONKSİYONLAR BU SEVİYEDE, SINIFIN DOĞRUDAN ÜYESİ OLMALI
 

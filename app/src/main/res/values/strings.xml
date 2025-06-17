@@ -61,7 +61,7 @@
     <string name="back_to_main_screen">Back to Home Screen</string>
 
     <!-- Movie -->
-    <string name="movie_screen_title">Film &amp; TV Series Suggestions</string>
+    <string name="movie_screen_title">Film &amp; TV Series</string>
     <string name="coming_soon">Coming Soon!</string>
     <string name="content_type_selection">What do you want to watch?</string>
     <string name="movies_tab">Movies</string>
@@ -78,6 +78,13 @@
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
+    <string name="customization">Customization</string>
+    <string name="general">General</string>
+    <string name="settings_app">App</string>
+    <string name="theme_and_colors">Theme and Colors</string>
+    <string name="theme_and_colors_subtitle">Light/Dark mode · Dynamic/Static colors</string>
+    <string name="notifications">Notifications (BETA)</string>
+    <string name="update_notifications">Update notifications</string>
     <string name="settings_category_update">App Update</string>
     <string name="check_for_updates">Check for Updates</string>
     <string name="current_version">Current Version: %1$s</string> <string name="checking_for_updates">Checking for updates...</string>
@@ -94,5 +101,8 @@
     <string name="language">Language</string>
     <string name="language_subtitle">Change app language</string>
     <string name="appearance">Appearance</string>
-    <string name="newversion">New Version Available</string>
+    <string name="newversion">New Version Available:</string>
+    <string name="update">Update</string>
+    <string name="update_found">New version found:</string>
+    <string name="update_prompt">You need to update the app to use the latest features!</string>
 </resources>

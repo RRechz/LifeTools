@@ -26,7 +26,7 @@
     <string name="purple_color_name">Mor</string>
     <string name="orange_color_name">Turuncu</string>
     <string name="teal_color_name">Camgöbeği</string>
-    <string name="tool_sd_to_hd_title">SD to HD</string>
+    <string name="tool_sd_to_hd_title">SD\'den HD\'ye</string>
     <string name="tool_todo_with_ai_title">AI ile ToDo</string>
     <string name="tool_ai_effect_photos_title">AI Fotoğraf Efektleri</string>
     <string name="coming_soon_MAİN">Bu özellik yakında eklenecektir.</string>
@@ -62,7 +62,7 @@
     <string name="back_to_main_screen">Ana Ekrana Geri Dön</string>
 
     <!-- Film/Dizi -->
-    <string name="movie_screen_title">Film &amp; Dizi Önerileri</string>
+    <string name="movie_screen_title">Film &amp; Dizi</string>
     <string name="coming_soon">Çok Yakında!</string>
     <string name="content_type_selection">Ne İzlemek İstersin?</string>
     <string name="movies_tab">Filmler</string>
@@ -77,6 +77,13 @@
 
     <!-- Ayarlar Ekranı -->
     <string name="settings_title">Ayarlar</string>
+    <string name="customization">Kişiselleştirme</string>
+    <string name="general">Genel</string>
+    <string name="settings_app">Uygulama</string>
+    <string name="theme_and_colors">Tema ve Renkler</string>
+    <string name="theme_and_colors_subtitle">Açık/Koyu mod · Dinamik/Statik renkler</string>
+    <string name="notifications">Bildirimler (BETA)</string>
+    <string name="update_notifications">Güncelleme bildirimleri</string>
     <string name="settings_category_update">Uygulama Güncellemeleri</string>
     <string name="check_for_updates">Güncellemeleri Kontrol Et</string>
     <string name="current_version">Mevcut Sürüm: %1$s</string> <string name="checking_for_updates">Güncellemeler kontrol ediliyor...</string>
@@ -93,5 +100,8 @@
     <string name="language">Dil</string>
     <string name="language_subtitle">Uygulama dilini değiştir</string>
     <string name="appearance">Görünüm</string>
-    <string name="newversion">Yeni sürüm mevcut!</string>
+    <string name="newversion">Yeni sürüm mevcut:</string>
+    <string name="update">Güncelle</string>
+    <string name="update_found">Yeni sürüm bulundu:</string>
+    <string name="update_prompt">En yeni özellikleri kullanabilmek için uygulamayı güncellemelisin!</string>
 </resources>
