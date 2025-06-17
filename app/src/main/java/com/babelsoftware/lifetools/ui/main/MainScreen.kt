@@ -1,18 +1,46 @@
 package com.babelsoftware.lifetools.ui.main
 
 import android.widget.Toast
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,22 +48,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.babelsoftware.lifetools.R
 import com.babelsoftware.lifetools.ToolItem
 import com.babelsoftware.lifetools.ui.navigation.Screen
-import com.babelsoftware.lifetools.ui.theme.LifeToolsTheme
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.io.Resources
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 // --- DUMMY DATA ---
 data class ToolCategory(val title: String, val tools: List<ToolItem>)
@@ -62,7 +88,6 @@ private val upcomingTools = listOf(
     ToolItem(R.string.tool_ai_effect_photos_title, R.drawable.photo_effect_with_ai, Screen.MAIN)
 )
 
-// --- ANA EKRAN ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -148,7 +173,8 @@ fun MainScreen(
                 ) {
                     Text(
                         stringResource(R.string.lifetools_menu),
-                        style = MaterialTheme.typography.headlineSmall)
+                        style = MaterialTheme.typography.headlineSmall
+                    )
                     Button(
                         onClick = {
                             showSheet = false
@@ -201,24 +227,24 @@ fun FancyHeaderCard(
                 .background(
                     Brush.linearGradient(
                         listOf(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                             MaterialTheme.colorScheme.primaryContainer
                         )
                     )
                 )
-                .padding(28.dp)
+                .padding(12.dp)
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Text(
                     text = if (isUpdateAvailable) "🚀 Yeni Sürüm: $latestVersionName"
-                    else "💡 Günün İpucu: $tipOfTheDay",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    else "💡 $tipOfTheDay",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.W100),
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
-                    text = date,
+                    text = "$date | LifeTools BETA",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -238,74 +264,134 @@ fun FancyToolsSection(
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
-        Spacer(Modifier.height(12.dp))
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            items(tools) { tool ->
-                FancyToolCard(
-                    toolItem = tool,
-                    onClick = { onToolClick(tool) },
-                    isEnabled = isEnabled
-                )
-            }
-        }
+        Spacer(Modifier.height(9.dp))
+        HeroCarousel(
+            items = tools,
+            onToolClick = onToolClick,
+            isEnabled = isEnabled
+        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun FancyToolCard(
     toolItem: ToolItem,
     onClick: () -> Unit,
     isEnabled: Boolean = true
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    val cardWidth = screenWidth * 0.8f
+    val cardHeight = cardWidth * 0.40f
+
     Card(
         onClick = { if (isEnabled) onClick() },
         modifier = Modifier
-            .width(200.dp)
-            .height(220.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .shadow(8.dp, RoundedCornerShape(24.dp)),
+            .width(cardWidth)
+            .height(cardHeight)
+            .clip(RoundedCornerShape(20.dp))
+            .shadow(10.dp, RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .background(
+                    Brush.linearGradient(
+                        listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    )
+                )
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(id = toolItem.iconResId),
                 contentDescription = null,
-                modifier = Modifier.size(70.dp)
+                modifier = Modifier
+                    .size(cardHeight * 0.5f)
+                    .clip(RoundedCornerShape(25.dp))
             )
-            Text(
-                text = stringResource(id = toolItem.titleResId),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = stringResource(R.string.powered_by_ai),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.Center
-            )
+            Spacer(Modifier.width(8.dp))
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                Text(
+                    text = stringResource(id = toolItem.titleResId),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "Bu araç ile yapabileceklerin hakkında kısa açıklama buraya sığar.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(R.string.powered_by_ai),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
 
-// --- PREVIEW ---
-@Preview(showBackground = true)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScreenPreview() {
-    LifeToolsTheme {
-        MainScreen(onNavigate = {})
+fun HeroCarousel(
+    items: List<ToolItem>,
+    onToolClick: (ToolItem) -> Unit,
+    isEnabled: Boolean = true
+) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { items.size }
+    )
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 25.dp),
+            pageSpacing = 3.dp
+        ) { page ->
+            FancyToolCard(
+                toolItem = items[page],
+                onClick = { onToolClick(items[page]) },
+                isEnabled = isEnabled
+            )
+        }
+
+        // Slider(
+            // value = pagerState.currentPage.toFloat(),
+            // onValueChange = {
+                // LaunchedEffect(it) {
+                    // pagerState.animateScrollToPage(it.toInt())
+                // }
+            // },
+            // valueRange = 0f..(items.size - 1).toFloat(),
+            // steps = items.size - 2
+        // )
     }
 }
+
+
+// --- PREVIEW ---
+// @Preview(showBackground = true)
+// @Composable
+// fun MainScreenPreview() {
+    //LifeToolsTheme {
+        // MainScreen(onNavigate = {})
+    // }
+// }
