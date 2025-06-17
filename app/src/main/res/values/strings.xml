@@ -51,6 +51,7 @@
     <string name="favorite_tools">Favorite Tools Coming Soon!</string>
     <string name="favorite">Favorites</string>
     <string name="powered_by_ai">Powered by AI</string>
+    <string name="update_glance">🚀 New Version:</string>
 
     <!-- Recipe Screen -->
     <string name="recipe_screen_title">Food Recipes</string>

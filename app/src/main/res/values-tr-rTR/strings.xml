@@ -52,6 +52,7 @@
     <string name="favorite_tools">Favori Araçlar Yakında Geliyor!</string>
     <string name="favorite">Favoriler</string>
     <string name="powered_by_ai">Yapay Zeka ile Güçlendirildi</string>
+    <string name="update_glance">🚀 Yeni Sürüm:</string>
 
     <!-- Yemek Tarif Ekranı -->
     <string name="recipe_screen_title">Yemek Tarifleri</string>
