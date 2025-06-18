@@ -77,8 +77,9 @@
     <!-- Truth or Dare -->
     <string name="truth_or_dare">Truth? or Dare?</string>
 
-    <!-- Truth Widget -->
+    <!-- Widgets -->
     <string name="truth_widget_description">Truth Widget</string>
+    <string name="movie_widget_description">Movie Widget</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>

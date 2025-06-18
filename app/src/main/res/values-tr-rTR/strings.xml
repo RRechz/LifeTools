@@ -74,7 +74,13 @@
     <string name="platforms_selection">Platform Seçin (Bir veya daha fazla)</string>
     <string name="get_recommendations_button">Öneri Al</string>
     <string name="ai_movie_response_placeholder">Film/dizi önerileri burada görünecek…</string>
-    <string name="truth_or_dare">Doğruluk mu? yoksa Cesaretlik mi?</string>
+
+    <!-- Truth or Dare -->
+    <string name="truth_or_dare">Doğruluk? Cesaretlik?</string>
+
+    <!-- Widgets -->
+    <string name="truth_widget_description">Doğruluk Widget</string>
+    <string name="movie_widget_description">Movie Widget</string>
 
     <!-- Ayarlar Ekranı -->
     <string name="settings_title">Ayarlar</string>

@@ -109,11 +109,13 @@ class MovieViewModel : ViewModel() {
 
         prompt += """
 
-        Lütfen 3 adet öneri sun. Her bir öneriyi şu formatta ve etiketleri kullanarak hazırla:
-        BAŞLIK: [Film/Dizi Adı]
-        YIL: [Yapım Yılı]
-        PLATFORMLAR: [Platform 1, Platform 2]
-        AÇIKLAMA: [Kısa ve ilgi çekici bir açıklama]
+        Lütfen 3 adet öneri sun. Sunacağın filmlerin bilgilerini İMDB sitesinden al. Bu, filmler hakkında en doğru bilgilerin olmasını sağlar.
+        Her bir öneriyi şu formatta ve etiketleri kullanarak hazırla:
+        BAŞLIK: <Film/Dizi_Adı>
+        YIL: <Yapım_Yılı>
+        PLATFORMLAR: <Platform 1,_Platform 2>
+        İMDB PUAN: <Film_imdb_puanı>
+        AÇIKLAMA: <Açıklama>
         ---
         """.trimIndent()
 
@@ -168,6 +170,39 @@ class MovieViewModel : ViewModel() {
             }
         }
         return recommendations
+    }
+
+    /**
+     * Widget için tek ve kısa bir film önerisi getirir.
+     * @return Başarılı olursa öneri metnini (String), başarısız olursa null döner.
+     */
+    suspend fun fetchSingleMovieRecommendationForWidget(): String? {
+        if (!::generativeModel.isInitialized) {
+            return null
+        }
+
+        // Widget için çok daha basit ve kısa bir cevap isteyen özel prompt.
+        val prompt = """
+        Bana popüler veya kült olabilecek, genel beğeniye uygun tek bir film öner. Film bilgilerini İMDB'den al.
+        Cevabın çok kısa olsun ve sadece filmin adını ve parantez içerisinde yapım yılı içersin.
+        Bu cevap bir mobil uygulama widget'ında gösterilecek, bu yüzden kısa ve öz olması çok önemli.
+        
+        Örnek formatlar:
+        - Yüzüklerin Efendisi: Yüzük Kardeşliği (2001)
+        - Ucuz Roman (1994)
+        - Parazit (2019)
+        
+        Lütfen sadece bu formatta tek bir satır cevap ver.
+        """.trimIndent()
+
+        return try {
+            val response = generativeModel.generateContent(prompt)
+            // Gelen cevabın null değilse ve boş değilse ilk satırını alalım.
+            response.text?.lines()?.firstOrNull { it.isNotBlank() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null // Hata durumunda null dön.
+        }
     }
 
     fun clearErrorMessage() {
