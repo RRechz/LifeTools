@@ -332,11 +332,6 @@ fun FancyToolCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Bu araç ile yapabileceklerin hakkında kısa açıklama buraya sığar.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
                     text = stringResource(R.string.powered_by_ai),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary

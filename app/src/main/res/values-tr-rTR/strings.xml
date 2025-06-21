@@ -82,6 +82,11 @@
     <string name="truth_widget_description">Doğruluk Widget</string>
     <string name="movie_widget_description">Movie Widget</string>
 
+    <!-- Bir Bakışta'da Karşılama Mesajları-->
+    <string name="good_morning">Günaydın Efendim!</string>
+    <string name="have_a_nice_day">İyi Günler Efendim!</string>
+    <string name="good_evening">İyi Akşamlar efendim!</string>
+
     <!-- Ayarlar Ekranı -->
     <string name="settings_title">Ayarlar</string>
     <string name="customization">Kişiselleştirme</string>

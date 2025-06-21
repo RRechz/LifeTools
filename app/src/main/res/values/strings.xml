@@ -81,6 +81,11 @@
     <string name="truth_widget_description">Truth Widget</string>
     <string name="movie_widget_description">Movie Widget</string>
 
+    <!-- Welcome in Glance-->
+    <string name="good_morning">Good Morning Sir!</string>
+    <string name="have_a_nice_day">Have a Nice Day Sir!</string>
+    <string name="good_evening">Good Evening Sir!</string>
+
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
     <string name="customization">Customization</string>
